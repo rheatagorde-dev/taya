@@ -1,0 +1,81 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Alert;
+use App\Models\Detainee;
+use App\Models\Facility;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
+
+class ReportController extends Controller
+{
+    public function facilityReport(Facility $facility)
+    {
+        $facility->load(['detainees' => fn($q) => $q->where('status', 'active')
+            ->with(['penaltyReference', 'alerts' => fn($q2) => $q2->latest()->limit(1), 'phases'])]);
+
+        $stats = [
+            'total_active' => $facility->detainees->where('status', 'active')->count(),
+            'critical' => $facility->detainees->flatMap->alerts->where('alert_level', 'critical')->count(),
+            'at_risk' => $facility->detainees->flatMap->alerts->where('alert_level', 'at_risk')->count(),
+        ];
+
+        $pdf = Pdf::loadView('reports.facility', compact('facility', 'stats'));
+
+        return $pdf->download("facility_report_{$facility->id}_" . now()->format('Y-m-d') . '.pdf');
+    }
+
+    public function caseAlert(Alert $alert)
+    {
+        $alert->load([
+            'detainee.facility',
+            'detainee.penaltyReference',
+            'detainee.phases',
+            'computation',
+            'assignedUser',
+            'legalActions.filedByUser',
+        ]);
+
+        $pdf = Pdf::loadView('reports.case-alert', compact('alert'));
+
+        return $pdf->download("case_alert_{$alert->id}_" . now()->format('Y-m-d') . '.pdf');
+    }
+
+    public function policyAnalytics(Request $request)
+    {
+        $alertsByLevel = Alert::whereNull('resolved_at')
+            ->selectRaw('alert_level, COUNT(*) as count')
+            ->groupBy('alert_level')
+            ->pluck('count', 'alert_level')
+            ->toArray();
+
+        $detaineesByFacility = Detainee::where('status', 'active')
+            ->join('facilities', 'detainees.facility_id', '=', 'facilities.id')
+            ->selectRaw('facilities.name, COUNT(*) as count')
+            ->groupBy('facilities.name')
+            ->pluck('count', 'name')
+            ->toArray();
+
+        $resolutionsOverTime = Alert::whereNotNull('resolved_at')
+            ->where('resolved_at', '>=', now()->subMonths(6))
+            ->selectRaw("strftime('%Y-%m', resolved_at) as month, COUNT(*) as count")
+            ->groupBy('month')
+            ->orderBy('month')
+            ->pluck('count', 'month')
+            ->toArray();
+
+        if ($request->has('export') && $request->export === 'json') {
+            return response()->json([
+                'alerts_by_level' => $alertsByLevel,
+                'detainees_by_facility' => $detaineesByFacility,
+                'resolutions_over_time' => $resolutionsOverTime,
+                'total_active_detainees' => Detainee::where('status', 'active')->count(),
+                'total_critical' => Alert::where('alert_level', 'critical')->whereNull('resolved_at')->count(),
+                'total_resolved' => Alert::whereNotNull('resolved_at')->count(),
+            ]);
+        }
+
+        return view('dashboard.policy', compact('alertsByLevel', 'detaineesByFacility', 'resolutionsOverTime'));
+    }
+}
