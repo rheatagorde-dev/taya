@@ -42,6 +42,26 @@ class ReportController extends Controller
         return $pdf->download("case_alert_{$alert->id}_" . now()->format('Y-m-d') . '.pdf');
     }
 
+    public function detaineeProfile(Detainee $detainee)
+    {
+        $detainee->load([
+            'facility',
+            'penaltyReference',
+            'phases' => fn($q) => $q->orderBy('phase_number'),
+            'overstayComputations' => fn($q) => $q->latest()->limit(1),
+            'alerts' => fn($q) => $q->latest()->limit(1),
+            'legalActions.filedByUser',
+            'documents.uploadedByUser',
+        ]);
+
+        $latestComputation = $detainee->overstayComputations->first();
+        $latestAlert = $detainee->alerts->first();
+
+        $pdf = Pdf::loadView('reports.detainee-profile', compact('detainee', 'latestComputation', 'latestAlert'));
+
+        return $pdf->download("detainee_profile_{$detainee->id}_" . now()->format('Y-m-d') . '.pdf');
+    }
+
     public function policyAnalytics(Request $request)
     {
         $alertsByLevel = Alert::whereNull('resolved_at')

@@ -3,13 +3,35 @@
 @section('header', 'User Management')
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-6" x-data="{ 
+    selectedUsers: [], 
+    selectAll: false,
+    toggleAll() {
+        if (this.selectAll) {
+            this.selectedUsers = Array.from(document.querySelectorAll('.user-checkbox')).map(cb => cb.value);
+        } else {
+            this.selectedUsers = [];
+        }
+    }
+}">
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <h2 class="text-2xl font-bold text-gray-900">System Users</h2>
-        <button x-data @click="$dispatch('open-modal', 'create-user')" class="btn-primary flex items-center gap-2">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-            Add New User
-        </button>
+        <div class="flex flex-wrap gap-2">
+            <form action="{{ route('admin.users.bulk-reset-passwords') }}" method="POST" x-show="selectedUsers.length > 0" x-transition class="flex items-center">
+                @csrf
+                <template x-for="id in selectedUsers">
+                    <input type="hidden" name="user_ids[]" :value="id">
+                </template>
+                <button type="submit" onclick="return confirm('Are you sure you want to reset passwords to default for ' + selectedUsers.length + ' users?');" class="btn-secondary flex items-center gap-2 border-orange-200 text-orange-700 hover:bg-orange-50 hover:text-orange-800">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    Bulk Reset Passwords (<span x-text="selectedUsers.length"></span>)
+                </button>
+            </form>
+            <button @click="$dispatch('open-modal', 'create-user')" class="btn-primary flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                Add New User
+            </button>
+        </div>
     </div>
 
     <div class="glass-panel overflow-hidden">
@@ -17,6 +39,9 @@
             <table class="w-full text-sm text-left">
                 <thead class="text-xs text-gray-500 uppercase bg-gray-50 border-b border-gray-100">
                     <tr>
+                        <th scope="col" class="px-6 py-4 font-semibold w-12">
+                            <input type="checkbox" x-model="selectAll" @change="toggleAll" class="rounded border-gray-300 text-taya-accent focus:ring-taya-accent">
+                        </th>
                         <th scope="col" class="px-6 py-4 font-semibold">Name & Email</th>
                         <th scope="col" class="px-6 py-4 font-semibold">Role</th>
                         <th scope="col" class="px-6 py-4 font-semibold">Facility Assignment</th>
@@ -27,6 +52,11 @@
                 <tbody class="divide-y divide-gray-100">
                     @forelse($users as $user)
                         <tr class="hover:bg-gray-50/50 transition-colors">
+                            <td class="px-6 py-4">
+                                @if($user->id !== auth()->id())
+                                <input type="checkbox" value="{{ $user->id }}" x-model="selectedUsers" class="user-checkbox rounded border-gray-300 text-taya-accent focus:ring-taya-accent">
+                                @endif
+                            </td>
                             <td class="px-6 py-4">
                                 <div class="flex flex-col">
                                     <span class="font-bold text-gray-900">{{ $user->name }}</span>
@@ -55,19 +85,49 @@
                                 {{ $user->created_at->format('M d, Y') }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right">
-                                @if($user->id !== auth()->id())
-                                    <form action="{{ route('admin.users.destroy', $user) }}" method="POST" onsubmit="return confirm('Remove this user from the system?');" class="inline">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" class="text-red-500 hover:text-red-700 font-medium text-sm">
-                                            Revoke Access
+                                <div x-data="{ open: false }" class="relative inline-block text-left">
+                                    <button @click="open = !open" @click.away="open = false" type="button" class="text-gray-500 hover:text-gray-700 focus:outline-none p-1 rounded-md hover:bg-gray-100">
+                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path></svg>
+                                    </button>
+                                    
+                                    <div x-show="open" 
+                                         x-transition:enter="transition ease-out duration-100"
+                                         x-transition:enter-start="transform opacity-0 scale-95"
+                                         x-transition:enter-end="transform opacity-100 scale-100"
+                                         x-transition:leave="transition ease-in duration-75"
+                                         x-transition:leave-start="transform opacity-100 scale-100"
+                                         x-transition:leave-end="transform opacity-0 scale-95"
+                                         class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-20 py-1"
+                                         style="display: none;">
+                                         
+                                        <button @click="$dispatch('open-change-password-modal', { id: {{ $user->id }}, name: '{{ addslashes($user->name) }}' })" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                            Change Password
                                         </button>
-                                    </form>
-                                @endif
+                                        
+                                        @if($user->id !== auth()->id())
+                                        <form action="{{ route('admin.users.reset-password', $user) }}" method="POST" onsubmit="return confirm('Reset password to default (password)?');">
+                                            @csrf
+                                            <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                Reset to Default
+                                            </button>
+                                        </form>
+                                        
+                                        <div class="border-t border-gray-100 my-1"></div>
+                                        
+                                        <form action="{{ route('admin.users.destroy', $user) }}" method="POST" onsubmit="return confirm('Remove this user from the system?');">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                                                Revoke Access
+                                            </button>
+                                        </form>
+                                        @endif
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                            <td colspan="6" class="px-6 py-12 text-center text-gray-500">
                                 No users found.
                             </td>
                         </tr>
@@ -87,35 +147,16 @@
 <!-- Create User Modal (AlpineJS driven) -->
 <div x-data="{ show: false }"
      x-show="show"
-     x-on:open-modal.window="if ($event.detail === 'create-user') show = true"
-     x-on:keydown.escape.window="show = false"
-     style="display: none;"
-     class="fixed inset-0 z-50 overflow-y-auto"
-     aria-labelledby="modal-title" role="dialog" aria-modal="true">
+     x-transition.opacity.duration.300ms
+     x-on:open-modal.window="if ($event.detail === 'create-user') $nextTick(() => { show = true })"
+     x-on:keydown.escape.window="if (show) { show = false; $event.stopPropagation(); }"
+     style="display: none; z-index: 9999;"
+     class="fixed inset-0 flex items-center justify-center p-4 bg-gray-900/75 backdrop-blur-sm overflow-y-auto"
+     aria-labelledby="modal-title" role="dialog" aria-modal="true"
+     @mousedown.self="show = false">
     
-    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <!-- Backdrop -->
-        <div x-show="show"
-             x-transition:enter="ease-out duration-300"
-             x-transition:enter-start="opacity-0"
-             x-transition:enter-end="opacity-100"
-             x-transition:leave="ease-in duration-200"
-             x-transition:leave-start="opacity-100"
-             x-transition:leave-end="opacity-0"
-             class="fixed inset-0 bg-gray-900/75 backdrop-blur-sm transition-opacity" 
-             @click="show = false" aria-hidden="true"></div>
-
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
-        <!-- Modal Panel -->
-        <div x-show="show"
-             x-transition:enter="ease-out duration-300"
-             x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-             x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-             x-transition:leave="ease-in duration-200"
-             x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-             x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-             class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
+    <!-- Modal Panel -->
+    <div style="width: 100%; max-width: 32rem;" class="relative bg-white rounded-2xl text-left shadow-2xl overflow-hidden transform transition-all my-8">
             
             <form action="{{ route('admin.users.store') }}" method="POST">
                 @csrf
@@ -128,17 +169,17 @@
                     <div class="space-y-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Full Name</label>
-                            <input type="text" name="name" required class="mt-1 block w-full rounded-lg border-gray-300 text-sm focus:ring-taya-accent">
+                            <input type="text" name="name" required class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm outline-none focus:border-taya-accent focus:ring-1 focus:ring-taya-accent transition-colors">
                         </div>
                         
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Email Address</label>
-                            <input type="email" name="email" required class="mt-1 block w-full rounded-lg border-gray-300 text-sm focus:ring-taya-accent">
+                            <input type="email" name="email" required class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm outline-none focus:border-taya-accent focus:ring-1 focus:ring-taya-accent transition-colors">
                         </div>
                         
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Role</label>
-                            <select name="role" required class="mt-1 block w-full rounded-lg border-gray-300 text-sm focus:ring-taya-accent">
+                            <select name="role" required class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm outline-none focus:border-taya-accent focus:ring-1 focus:ring-taya-accent transition-colors">
                                 <option value="bjmp_staff">BJMP Staff</option>
                                 <option value="pao_lawyer">PAO Lawyer</option>
                                 <option value="ngo_lawyer">NGO Lawyer</option>
@@ -150,7 +191,7 @@
                         
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Facility Assignment (Optional for non-BJMP)</label>
-                            <select name="facility_id" class="mt-1 block w-full rounded-lg border-gray-300 text-sm focus:ring-taya-accent">
+                            <select name="facility_id" class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm outline-none focus:border-taya-accent focus:ring-1 focus:ring-taya-accent transition-colors">
                                 <option value="">System Wide / None</option>
                                 @foreach($facilities as $facility)
                                     <option value="{{ $facility->id }}">{{ $facility->name }}</option>
@@ -169,6 +210,140 @@
                 </div>
             </form>
         </div>
+</div>
+
+<!-- Change Password Modal (AlpineJS driven) -->
+<div x-data="{ 
+        show: false, 
+        userId: null, 
+        userName: '',
+        showPass: false, 
+        password: '', 
+        strength: 0, 
+        strengthLabel: ''
+     }"
+     x-effect="
+        if (password.length === 0) { strength = 0; strengthLabel = ''; }
+        else if (password.length < 8) { strength = 1; strengthLabel = 'Too short'; }
+        else if (password.length < 10 && !/[A-Z]/.test(password)) { strength = 2; strengthLabel = 'Weak'; }
+        else if (/[A-Z]/.test(password) && /[0-9]/.test(password) && password.length >= 10) { strength = 4; strengthLabel = 'Strong'; }
+        else { strength = 3; strengthLabel = 'Fair'; }
+     "
+     x-show="show"
+     x-transition.opacity.duration.300ms
+     x-on:open-change-password-modal.window="if ($event.detail) { $nextTick(() => { userId = $event.detail.id; userName = $event.detail.name; password = ''; showPass = false; show = true; }) }"
+     x-on:keydown.escape.window="if (show) { show = false; $event.stopPropagation(); }"
+     style="display: none; z-index: 9999;"
+     class="fixed inset-0 flex items-center justify-center p-4 bg-gray-900/75 backdrop-blur-sm overflow-y-auto"
+     aria-labelledby="modal-title" role="dialog" aria-modal="true"
+     @mousedown.self="show = false">
+    
+    <!-- Modal Panel -->
+    <div style="width: 100%; max-width: 32rem;" class="relative bg-white rounded-2xl text-left shadow-2xl overflow-hidden transform transition-all my-8">
+        
+        <form :action="'/admin/users/' + userId + '/change-password'" method="POST">
+            @csrf
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="mb-5">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                        <svg style="width: 1.25rem; height: 1.25rem; color: #3b82f6;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+                        </svg>
+                        <h3 class="text-lg leading-6 font-bold text-gray-900" id="modal-title">
+                            Set New Password <br><span class="text-gray-500 font-normal text-sm">for <span x-text="userName" class="font-semibold text-gray-700"></span></span>
+                        </h3>
+                    </div>
+                </div>
+
+                <!-- Password Input -->
+                <div style="margin-bottom: 1.25rem;">
+                    <label for="new_password" style="display: block; font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 0.5rem;">New Password</label>
+                    <div style="position: relative;">
+                        <div style="position: absolute; inset: 0; right: auto; display: flex; align-items: center; padding-left: 1rem; pointer-events: none;">
+                            <svg style="width: 1.25rem; height: 1.25rem; color: #9ca3af;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                        </div>
+                        <input :type="showPass ? 'text' : 'password'" 
+                               id="new_password" 
+                               name="new_password" 
+                               x-model="password"
+                               required 
+                               minlength="8"
+                               placeholder="Enter new password (min. 8 characters)"
+                               style="padding-left: 2.75rem; padding-right: 2.75rem;"
+                               class="block w-full rounded-lg border border-gray-300 bg-white py-3 text-sm text-gray-900 shadow-sm outline-none focus:border-taya-accent focus:ring-1 focus:ring-taya-accent transition-colors">
+                        <button type="button" @click="showPass = !showPass" style="position: absolute; inset: 0; left: auto; display: flex; align-items: center; padding-right: 1rem; background: none; border: none; cursor: pointer; color: #9ca3af; transition: color 0.2s;" onmouseover="this.style.color='#3b82f6'" onmouseout="this.style.color='#9ca3af'">
+                            <svg x-show="!showPass" style="width: 1.25rem; height: 1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            <svg x-show="showPass" style="width: 1.25rem; height: 1.25rem; display: none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L6.59 6.59m7.532 7.532l3.29 3.29M3 3l18 18"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Password Strength Meter -->
+                <div x-show="password.length > 0" x-transition style="margin-bottom: 1.5rem;">
+                    <div style="display: flex; gap: 0.375rem; margin-bottom: 0.5rem;">
+                        <div style="height: 0.3rem; flex: 1; border-radius: 9999px; background: #e5e7eb; overflow: hidden;">
+                            <div style="height: 100%; border-radius: 9999px; transition: all 0.4s ease;" :style="{ width: strength >= 1 ? '100%' : '0%', background: strength === 1 ? '#ef4444' : strength === 2 ? '#f97316' : strength === 3 ? '#eab308' : strength >= 4 ? '#22c55e' : '#e5e7eb' }"></div>
+                        </div>
+                        <div style="height: 0.3rem; flex: 1; border-radius: 9999px; background: #e5e7eb; overflow: hidden;">
+                            <div style="height: 100%; border-radius: 9999px; transition: all 0.4s ease;" :style="{ width: strength >= 2 ? '100%' : '0%', background: strength === 2 ? '#f97316' : strength === 3 ? '#eab308' : strength >= 4 ? '#22c55e' : '#e5e7eb' }"></div>
+                        </div>
+                        <div style="height: 0.3rem; flex: 1; border-radius: 9999px; background: #e5e7eb; overflow: hidden;">
+                            <div style="height: 100%; border-radius: 9999px; transition: all 0.4s ease;" :style="{ width: strength >= 3 ? '100%' : '0%', background: strength === 3 ? '#eab308' : strength >= 4 ? '#22c55e' : '#e5e7eb' }"></div>
+                        </div>
+                        <div style="height: 0.3rem; flex: 1; border-radius: 9999px; background: #e5e7eb; overflow: hidden;">
+                            <div style="height: 100%; border-radius: 9999px; transition: all 0.4s ease;" :style="{ width: strength >= 4 ? '100%' : '0%', background: strength >= 4 ? '#22c55e' : '#e5e7eb' }"></div>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.75rem; font-weight: 600; margin: 0;" :style="{ color: strength === 1 ? '#ef4444' : strength === 2 ? '#f97316' : strength === 3 ? '#ca8a04' : strength >= 4 ? '#16a34a' : '#9ca3af' }" x-text="strengthLabel"></p>
+                </div>
+
+                <!-- Password Requirements -->
+                <div style="background: linear-gradient(135deg, #eff6ff, #eef2ff); border: 1px solid rgba(59,130,246,0.12); border-radius: 0.875rem; padding: 1.25rem 1.5rem; margin-bottom: 1rem;">
+                    <p style="font-size: 0.6875rem; font-weight: 700; color: #3b82f6; text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 0.75rem 0;">Password Requirements</p>
+                    <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.625rem;">
+                        <li style="display: flex; align-items: center; gap: 0.625rem; font-size: 0.8125rem;" :style="{ color: password.length >= 8 ? '#16a34a' : '#6b7280' }">
+                            <div style="width: 1.25rem; height: 1.25rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.3s;" :style="{ background: password.length >= 8 ? '#dcfce7' : '#f3f4f6', border: '1.5px solid ' + (password.length >= 8 ? '#22c55e' : '#d1d5db') }">
+                                <svg style="width: 0.75rem; height: 0.75rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24" :style="{ color: password.length >= 8 ? '#22c55e' : '#d1d5db' }">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                </svg>
+                            </div>
+                            At least 8 characters
+                        </li>
+                        <li style="display: flex; align-items: center; gap: 0.625rem; font-size: 0.8125rem;" :style="{ color: /[A-Z]/.test(password) ? '#16a34a' : '#6b7280' }">
+                            <div style="width: 1.25rem; height: 1.25rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.3s;" :style="{ background: /[A-Z]/.test(password) ? '#dcfce7' : '#f3f4f6', border: '1.5px solid ' + (/[A-Z]/.test(password) ? '#22c55e' : '#d1d5db') }">
+                                <svg style="width: 0.75rem; height: 0.75rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24" :style="{ color: /[A-Z]/.test(password) ? '#22c55e' : '#d1d5db' }">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                </svg>
+                            </div>
+                            Include an uppercase letter
+                        </li>
+                        <li style="display: flex; align-items: center; gap: 0.625rem; font-size: 0.8125rem;" :style="{ color: /[0-9]/.test(password) ? '#16a34a' : '#6b7280' }">
+                            <div style="width: 1.25rem; height: 1.25rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.3s;" :style="{ background: /[0-9]/.test(password) ? '#dcfce7' : '#f3f4f6', border: '1.5px solid ' + (/[0-9]/.test(password) ? '#22c55e' : '#d1d5db') }">
+                                <svg style="width: 0.75rem; height: 0.75rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24" :style="{ color: /[0-9]/.test(password) ? '#22c55e' : '#d1d5db' }">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                </svg>
+                            </div>
+                            Include a number
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-100">
+                <button type="submit" class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-taya-accent text-base font-medium text-white hover:bg-taya-accent-dark focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
+                    Update Password
+                </button>
+                <button type="button" @click="show = false" class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                    Cancel
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 @endsection

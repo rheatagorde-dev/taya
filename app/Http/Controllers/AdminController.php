@@ -70,6 +70,49 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'User deactivated successfully.');
     }
 
+    public function usersResetPassword(User $user)
+    {
+        $user->update(['password' => Hash::make('password')]);
+        AuditService::log('user_password_reset', "Password reset to default for user {$user->name}");
+        return redirect()->back()->with('success', 'Password reset to default successfully.');
+    }
+
+    public function usersChangePassword(Request $request, User $user)
+    {
+        $request->validate([
+            'new_password' => 'required|string|min:8',
+        ]);
+
+        $user->update(['password' => Hash::make($request->input('new_password'))]);
+        AuditService::log('user_password_changed', "Password changed manually for user {$user->name}");
+        
+        return redirect()->back()->with('success', "Password updated successfully for {$user->name}.");
+    }
+
+    public function usersBulkResetPasswords(Request $request)
+    {
+        $request->validate([
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'exists:users,id'
+        ]);
+
+        $count = 0;
+        foreach ($request->input('user_ids') as $id) {
+            $user = User::find($id);
+            if ($user && $user->id !== auth()->id()) { // Don't allow bulk reset on self accidentally
+                $user->update(['password' => Hash::make('password')]);
+                $count++;
+            }
+        }
+
+        if ($count > 0) {
+            AuditService::log('bulk_password_reset', "Bulk reset passwords to default for {$count} users");
+            return redirect()->back()->with('success', "Passwords reset to default for {$count} users.");
+        }
+        
+        return redirect()->back()->with('error', 'No valid users selected for password reset.');
+    }
+
     // ── Facility Management ──────────────────────────
 
     public function facilitiesIndex()

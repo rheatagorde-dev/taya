@@ -41,6 +41,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('admin/users', [\App\Http\Controllers\AdminController::class, 'usersStore'])->name('admin.users.store');
         Route::put('admin/users/{user}', [\App\Http\Controllers\AdminController::class, 'usersUpdate'])->name('admin.users.update');
         Route::delete('admin/users/{user}', [\App\Http\Controllers\AdminController::class, 'usersDestroy'])->name('admin.users.destroy');
+        Route::post('admin/users/bulk-reset-passwords', [\App\Http\Controllers\AdminController::class, 'usersBulkResetPasswords'])->name('admin.users.bulk-reset-passwords');
+        Route::post('admin/users/{user}/reset-password', [\App\Http\Controllers\AdminController::class, 'usersResetPassword'])->name('admin.users.reset-password');
+        Route::post('admin/users/{user}/change-password', [\App\Http\Controllers\AdminController::class, 'usersChangePassword'])->name('admin.users.change-password');
         
         // Admin facility management
         Route::get('admin/facilities', [\App\Http\Controllers\AdminController::class, 'facilitiesIndex'])->name('admin.facilities.index');
@@ -61,6 +64,7 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('role:admin,policy_advocate,court_admin')->group(function () {
         Route::get('reports/facility/{facility}', [\App\Http\Controllers\ReportController::class, 'facilityReport'])->name('reports.facility');
         Route::get('reports/alert/{alert}', [\App\Http\Controllers\ReportController::class, 'caseAlert'])->name('reports.alert');
+        Route::get('reports/detainee/{detainee}', [\App\Http\Controllers\ReportController::class, 'detaineeProfile'])->name('reports.detainee');
         Route::get('reports/analytics', [\App\Http\Controllers\ReportController::class, 'policyAnalytics'])->name('reports.analytics');
     });
 });

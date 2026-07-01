@@ -38,8 +38,8 @@
                 <p class="text-xs font-semibold text-gray-500 uppercase mb-1">Current Assignment</p>
                 @if($alert->assigned_to)
                     <div class="flex items-center justify-between">
-                        <span class="font-medium text-gray-900">{{ $alert->assignedUser->name }}</span>
-                        <span class="text-xs text-gray-500">{{ ucwords(str_replace('_', ' ', $alert->assignedUser->role)) }}</span>
+                            <span class="font-medium text-gray-900">{{ $alert->assignedUser?->name ?? 'Unassigned' }}</span>
+                            <span class="text-xs text-gray-500">{{ $alert->assignedUser?->role ? ucwords(str_replace('_', ' ', $alert->assignedUser->role)) : '' }}</span>
                     </div>
                 @else
                     <span class="text-sm text-red-500 font-medium flex items-center gap-1.5">
@@ -61,7 +61,7 @@
                     <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     Recommended Legal Action
                 </h3>
-                <p class="text-blue-800 text-lg">{{ $alert->recommended_action }}</p>
+                <p class="text-blue-800 text-lg">{{ $alert->recommended_action ?: 'No recommendation available.' }}</p>
                 
                 @if(!$alert->resolved_at && auth()->user()->hasRole('admin', 'pao_lawyer', 'ngo_lawyer'))
                     <div class="mt-6 pt-4 border-t border-blue-200">
@@ -171,20 +171,20 @@
                 <dl class="space-y-3 text-sm">
                     <div class="flex justify-between">
                         <dt class="text-gray-500">Primary Charge</dt>
-                        <dd class="font-medium text-gray-900 text-right w-1/2">{{ $alert->detainee->penaltyReference->rpc_code }}</dd>
+                        <dd class="font-medium text-gray-900 text-right w-1/2">{{ $alert->detainee->penaltyReference ? $alert->detainee->penaltyReference->rpc_code.' - '.$alert->detainee->penaltyReference->charge_name : ($alert->detainee->charge_description ?? 'N/A') }}</dd>
                     </div>
                     <div class="flex justify-between">
                         <dt class="text-gray-500">Max Penalty</dt>
-                        <dd class="font-medium text-gray-900">{{ $alert->computation->max_penalty_days }} days</dd>
+                        <dd class="font-medium text-gray-900">{{ $alert->computation?->max_penalty_days !== null ? $alert->computation->max_penalty_days.' days' : 'N/A' }}</dd>
                     </div>
                     <div class="flex justify-between">
                         <dt class="text-gray-500">Time Served</dt>
-                        <dd class="font-medium text-gray-900">{{ $alert->computation->days_detained }} days</dd>
+                        <dd class="font-medium text-gray-900">{{ $alert->computation?->days_detained !== null ? $alert->computation->days_detained.' days' : 'N/A' }}</dd>
                     </div>
                     <div class="flex justify-between pt-2 border-t border-gray-100">
                         <dt class="font-semibold text-gray-900">Overstay</dt>
-                        <dd class="font-bold {{ $alert->computation->overstay_days > 0 ? 'text-red-600' : 'text-green-600' }}">
-                            {{ $alert->computation->overstay_days }} days
+                        <dd class="font-bold {{ ($alert->computation?->overstay_days ?? 0) > 0 ? 'text-red-600' : 'text-green-600' }}">
+                            {{ $alert->computation?->overstay_days !== null ? $alert->computation->overstay_days.' days' : 'N/A' }}
                         </dd>
                     </div>
                 </dl>

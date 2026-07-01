@@ -24,6 +24,9 @@
         
         @if(auth()->user()->hasRole('admin', 'bjmp_staff'))
             <div class="flex gap-2">
+                <a href="{{ route('reports.detainee', $detainee) }}" target="_blank" class="btn-secondary">
+                    Download PDF
+                </a>
                 <a href="{{ route('detainees.edit', $detainee) }}" class="btn-secondary">
                     Edit Details
                 </a>
