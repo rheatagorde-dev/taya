@@ -67,16 +67,16 @@
                         <div>
                             <div class="flex justify-between text-sm mb-1">
                                 <span class="text-gray-500">Days Detained</span>
-                                <span class="font-medium text-gray-900">{{ $latestComputation ? $latestComputation->days_detained : $detainee->days_detained }} days</span>
+                                <span class="font-medium text-gray-900">{{ $latestComputation ? $latestComputation->days_detained_display : $detainee->days_detained_display }}</span>
                             </div>
                             <div class="flex justify-between text-sm mb-1">
                                 <span class="text-gray-500">Max Penalty</span>
-                                <span class="font-medium text-gray-900">{{ $latestComputation ? $latestComputation->max_penalty_days : ($detainee->penaltyReference->max_penalty_years * 365) }} days</span>
+                                <span class="font-medium text-gray-900">{{ $latestComputation ? $latestComputation->max_penalty_display : $detainee->penaltyReference->penalty_duration_display }}</span>
                             </div>
                             <div class="flex justify-between text-sm mb-1 pt-2 border-t border-gray-100">
                                 <span class="font-medium text-gray-900">Overstay Days</span>
                                 <span class="font-bold {{ ($latestComputation && $latestComputation->overstay_days > 0) ? 'text-red-600' : 'text-green-600' }}">
-                                    {{ $latestComputation ? $latestComputation->overstay_days : 0 }} days
+                                    {{ $latestComputation ? $latestComputation->overstay_days_display : '0 days' }}
                                 </span>
                             </div>
                         </div>

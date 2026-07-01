@@ -69,12 +69,12 @@
                             <td class="px-6 py-4">
                                 <div class="flex flex-col">
                                     <span class="text-gray-900 font-medium">{{ $alert->detainee->penaltyReference->charge_name }}</span>
-                                    <span class="text-xs text-gray-500">Max Penalty: {{ $alert->detainee->penaltyReference->max_penalty_years }} yrs</span>
+                                    <span class="text-xs text-gray-500">Max Penalty: {{ $alert->detainee->penaltyReference->penalty_duration_display }}</span>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex flex-col">
-                                    <span class="text-gray-900 font-medium">{{ $alert->detainee->days_detained }} days</span>
+                                    <span class="text-gray-900 font-medium">{{ $alert->detainee->days_detained_display }}</span>
                                     <span class="text-xs text-gray-500">Since: {{ $alert->detainee->commitment_date->format('M d, Y') }}</span>
                                 </div>
                             </td>

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\DurationFormatter;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -35,5 +36,20 @@ class OverstayComputation extends Model
     public function alert(): HasOne
     {
         return $this->hasOne(Alert::class, 'computation_id');
+    }
+
+    public function getDaysDetainedDisplayAttribute(): string
+    {
+        return DurationFormatter::daysWithParenthetical((int) $this->days_detained);
+    }
+
+    public function getMaxPenaltyDisplayAttribute(): string
+    {
+        return DurationFormatter::daysWithParenthetical((int) $this->max_penalty_days);
+    }
+
+    public function getOverstayDaysDisplayAttribute(): string
+    {
+        return DurationFormatter::daysWithParenthetical((int) $this->overstay_days);
     }
 }

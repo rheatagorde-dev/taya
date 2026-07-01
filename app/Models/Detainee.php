@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\DurationFormatter;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -80,6 +81,11 @@ class Detainee extends Model
     public function getDaysDetainedAttribute(): int
     {
         return $this->commitment_date->diffInDays(Carbon::today());
+    }
+
+    public function getDaysDetainedDisplayAttribute(): string
+    {
+        return DurationFormatter::daysWithParenthetical($this->days_detained);
     }
 
     /**

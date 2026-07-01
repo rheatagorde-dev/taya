@@ -82,15 +82,15 @@
         </tr>
         <tr>
             <th>Max Penalty (Days)</th>
-            <td>{{ $alert->computation?->max_penalty_days !== null ? $alert->computation->max_penalty_days . ' days' : 'N/A' }}</td>
+            <td>{{ $alert->computation?->max_penalty_days !== null ? $alert->computation->max_penalty_display : 'N/A' }}</td>
         </tr>
         <tr>
             <th>Time Served (Days)</th>
-            <td>{{ $alert->computation?->days_detained !== null ? $alert->computation->days_detained . ' days' : 'N/A' }}</td>
+            <td>{{ $alert->computation?->days_detained !== null ? $alert->computation->days_detained_display : 'N/A' }}</td>
         </tr>
         <tr>
             <th>Estimated Overstay (Days)</th>
-            <td style="color: #dc2626; font-weight: bold;">{{ $alert->computation?->overstay_days !== null ? $alert->computation->overstay_days . ' days' : 'N/A' }}</td>
+            <td style="color: #dc2626; font-weight: bold;">{{ $alert->computation?->overstay_days !== null ? $alert->computation->overstay_days_display : 'N/A' }}</td>
         </tr>
     </table>
 

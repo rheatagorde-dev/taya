@@ -62,6 +62,20 @@
                     Recommended Legal Action
                 </h3>
                 <p class="text-blue-800 text-lg">{{ $alert->recommended_action ?: 'No recommendation available.' }}</p>
+
+                @php
+                    $completedPhases = $alert->detainee->phases->where('completed', true)->count();
+                    $totalPhases = $alert->detainee->phases->count();
+                    $allPhasesComplete = $totalPhases > 0 && $completedPhases === $totalPhases;
+                @endphp
+
+                <div class="mt-4 rounded-xl border border-blue-200 bg-white/70 p-4 text-sm text-blue-900">
+                    <p class="font-semibold">Phase status</p>
+                    <p class="mt-1 text-blue-800">
+                        {{ $allPhasesComplete ? 'All phases are completed.' : "{$completedPhases}/{$totalPhases} phases completed." }}
+                        Admins can still mark this alert as resolved manually.
+                    </p>
+                </div>
                 
                 @if(!$alert->resolved_at && auth()->user()->hasRole('admin', 'pao_lawyer', 'ngo_lawyer'))
                     <div class="mt-6 pt-4 border-t border-blue-200">
@@ -175,16 +189,16 @@
                     </div>
                     <div class="flex justify-between">
                         <dt class="text-gray-500">Max Penalty</dt>
-                        <dd class="font-medium text-gray-900">{{ $alert->computation?->max_penalty_days !== null ? $alert->computation->max_penalty_days.' days' : 'N/A' }}</dd>
+                        <dd class="font-medium text-gray-900">{{ $alert->computation?->max_penalty_days !== null ? $alert->computation->max_penalty_display : 'N/A' }}</dd>
                     </div>
                     <div class="flex justify-between">
                         <dt class="text-gray-500">Time Served</dt>
-                        <dd class="font-medium text-gray-900">{{ $alert->computation?->days_detained !== null ? $alert->computation->days_detained.' days' : 'N/A' }}</dd>
+                        <dd class="font-medium text-gray-900">{{ $alert->computation?->days_detained !== null ? $alert->computation->days_detained_display : 'N/A' }}</dd>
                     </div>
                     <div class="flex justify-between pt-2 border-t border-gray-100">
                         <dt class="font-semibold text-gray-900">Overstay</dt>
                         <dd class="font-bold {{ ($alert->computation?->overstay_days ?? 0) > 0 ? 'text-red-600' : 'text-green-600' }}">
-                            {{ $alert->computation?->overstay_days !== null ? $alert->computation->overstay_days.' days' : 'N/A' }}
+                            {{ $alert->computation?->overstay_days !== null ? $alert->computation->overstay_days_display : 'N/A' }}
                         </dd>
                     </div>
                 </dl>

@@ -14,7 +14,7 @@ class AlertController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Alert::with(['detainee.facility', 'detainee.penaltyReference', 'assignedUser', 'computation']);
+        $query = Alert::with(['detainee.facility', 'detainee.penaltyReference', 'detainee.phases', 'assignedUser', 'computation']);
 
         if ($level = $request->input('alert_level')) {
             $query->where('alert_level', $level);

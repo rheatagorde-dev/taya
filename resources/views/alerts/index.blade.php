@@ -73,7 +73,17 @@
                                     <a href="{{ route('alerts.show', $alert) }}" class="font-bold text-gray-900 hover:text-taya-accent transition-colors">
                                         {{ $alert->detainee->full_name }}
                                     </a>
-                                    <span class="text-xs text-gray-500">Overstay: {{ $alert->computation->overstay_days ?? 0 }} days</span>
+                                    <span class="text-xs text-gray-500">Overstay: {{ $alert->computation ? $alert->computation->overstay_days_display : '0 days' }}</span>
+                                    @php
+                                        $completedPhases = $alert->detainee->phases->where('completed', true)->count();
+                                        $totalPhases = $alert->detainee->phases->count();
+                                        $phaseLabel = $totalPhases > 0 && $completedPhases === $totalPhases
+                                            ? 'All phases completed'
+                                            : "Phase progress: {$completedPhases}/{$totalPhases} complete";
+                                    @endphp
+                                    <span class="mt-1 inline-flex w-fit items-center rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700">
+                                        {{ $phaseLabel }}
+                                    </span>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-gray-600">

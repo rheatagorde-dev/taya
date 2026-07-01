@@ -48,15 +48,15 @@
     <table>
         <tr>
             <th>Days Detained</th>
-            <td>{{ $latestComputation?->days_detained !== null ? $latestComputation->days_detained . ' days' : $detainee->days_detained . ' days' }}</td>
+            <td>{{ $latestComputation?->days_detained !== null ? $latestComputation->days_detained_display : $detainee->days_detained_display }}</td>
         </tr>
         <tr>
             <th>Max Penalty</th>
-            <td>{{ $latestComputation?->max_penalty_days !== null ? $latestComputation->max_penalty_days . ' days' : 'N/A' }}</td>
+            <td>{{ $latestComputation?->max_penalty_days !== null ? $latestComputation->max_penalty_display : 'N/A' }}</td>
         </tr>
         <tr>
             <th>Overstay</th>
-            <td>{{ $latestComputation?->overstay_days !== null ? $latestComputation->overstay_days . ' days' : 'N/A' }}</td>
+            <td>{{ $latestComputation?->overstay_days !== null ? $latestComputation->overstay_days_display : 'N/A' }}</td>
         </tr>
         <tr>
             <th>Latest Alert</th>
