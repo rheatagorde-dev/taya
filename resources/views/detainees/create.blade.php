@@ -67,6 +67,57 @@
                     </div>
                 </div>
 
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    <div>
+                        <label for="bail_amount" class="block text-sm font-medium text-gray-700">Bail Amount</label>
+                        <div class="mt-1">
+                            <input type="number" name="bail_amount" id="bail_amount" value="{{ old('bail_amount') }}" min="0"
+                                   class="shadow-sm focus:ring-taya-accent focus:border-taya-accent block w-full sm:text-sm border-gray-300 rounded-lg @error('bail_amount') border-red-300 text-red-900 focus:ring-red-500 focus:border-red-500 @enderror"
+                                   placeholder="0">
+                        </div>
+                        @error('bail_amount')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div>
+                        <label for="bail_status" class="block text-sm font-medium text-gray-700">Bail Status</label>
+                        <div class="mt-1">
+                            <select name="bail_status" id="bail_status"
+                                    class="shadow-sm focus:ring-taya-accent focus:border-taya-accent block w-full sm:text-sm border-gray-300 rounded-lg @error('bail_status') border-red-300 text-red-900 focus:ring-red-500 focus:border-red-500 @enderror">
+                                <option value="not_posted" {{ old('bail_status') === 'not_posted' ? 'selected' : '' }}>Not Posted</option>
+                                <option value="posted" {{ old('bail_status') === 'posted' ? 'selected' : '' }}>Posted</option>
+                                <option value="unable_to_pay" {{ old('bail_status') === 'unable_to_pay' ? 'selected' : '' }}>Unable to Pay</option>
+                                <option value="pending_review" {{ old('bail_status') === 'pending_review' ? 'selected' : '' }}>Pending Review</option>
+                            </select>
+                        </div>
+                        @error('bail_status')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div>
+                        <label for="bail_posted_at" class="block text-sm font-medium text-gray-700">Bail Posted Date</label>
+                        <div class="mt-1">
+                            <input type="date" name="bail_posted_at" id="bail_posted_at" value="{{ old('bail_posted_at') }}" max="{{ date('Y-m-d') }}"
+                                   class="shadow-sm focus:ring-taya-accent focus:border-taya-accent block w-full sm:text-sm border-gray-300 rounded-lg @error('bail_posted_at') border-red-300 text-red-900 focus:ring-red-500 focus:border-red-500 @enderror">
+                        </div>
+                        @error('bail_posted_at')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+
+                <div>
+                    <label for="bail_notes" class="block text-sm font-medium text-gray-700">Bail Notes</label>
+                    <div class="mt-1">
+                        <textarea id="bail_notes" name="bail_notes" rows="3"
+                                  class="shadow-sm focus:ring-taya-accent focus:border-taya-accent block w-full sm:text-sm border border-gray-300 rounded-lg @error('bail_notes') border-red-300 text-red-900 focus:ring-red-500 focus:border-red-500 @enderror"
+                                  placeholder="Describe affordability, ability to post bail, or special bail conditions.">{{ old('bail_notes') }}</textarea>
+                    </div>
+                    @error('bail_notes')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
                 <!-- Charge Reference (Penalty mapping) -->
                 <div>
                     <label for="charge_rpc_code" class="block text-sm font-medium text-gray-700">Primary Charge Category (RPC/RA)</label>

@@ -21,12 +21,17 @@ class Detainee extends Model
         'facility_id',
         'status',
         'created_by',
+        'bail_amount',
+        'bail_status',
+        'bail_posted_at',
+        'bail_notes',
     ];
 
     protected function casts(): array
     {
         return [
             'commitment_date' => 'date',
+            'bail_posted_at' => 'datetime',
         ];
     }
 
@@ -86,6 +91,20 @@ class Detainee extends Model
     public function getDaysDetainedDisplayAttribute(): string
     {
         return DurationFormatter::daysWithParenthetical($this->days_detained);
+    }
+
+    public function getBailStatusLabelAttribute(): string
+    {
+        return str_replace('_', ' ', ucfirst($this->bail_status));
+    }
+
+    public function getBailAmountDisplayAttribute(): string
+    {
+        if ($this->bail_amount === null) {
+            return 'Not set';
+        }
+
+        return '₱' . number_format($this->bail_amount, 0, '.', ',');
     }
 
     /**

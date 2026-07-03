@@ -19,6 +19,9 @@ class ReportController extends Controller
             'total_active' => $facility->detainees->where('status', 'active')->count(),
             'critical' => $facility->detainees->flatMap->alerts->where('alert_level', 'critical')->count(),
             'at_risk' => $facility->detainees->flatMap->alerts->where('alert_level', 'at_risk')->count(),
+            'capacity' => $facility->capacity,
+            'occupancy_pct' => $facility->capacity > 0 ? round(($facility->detainees->where('status', 'active')->count() / $facility->capacity) * 100, 1) : 0,
+            'over_capacity' => $facility->detainees->where('status', 'active')->count() > $facility->capacity,
         ];
 
         $pdf = Pdf::loadView('reports.facility', compact('facility', 'stats'));
@@ -85,6 +88,19 @@ class ReportController extends Controller
             ->pluck('count', 'month')
             ->toArray();
 
+        $unableToPayBail = Detainee::where('status', 'active')
+            ->where('bail_status', 'unable_to_pay')
+            ->count();
+
+        $overcrowdedFacilities = Facility::whereExists(function ($query) {
+            $query->selectRaw('1')
+                ->from('detainees')
+                ->whereColumn('detainees.facility_id', 'facilities.id')
+                ->where('detainees.status', 'active')
+                ->groupBy('facility_id')
+                ->havingRaw('COUNT(*) > facilities.capacity');
+        })->count();
+
         if ($request->has('export') && $request->export === 'json') {
             return response()->json([
                 'alerts_by_level' => $alertsByLevel,
@@ -93,9 +109,17 @@ class ReportController extends Controller
                 'total_active_detainees' => Detainee::where('status', 'active')->count(),
                 'total_critical' => Alert::where('alert_level', 'critical')->whereNull('resolved_at')->count(),
                 'total_resolved' => Alert::whereNotNull('resolved_at')->count(),
+                'unable_to_pay_bail' => $unableToPayBail,
+                'overcrowded_facilities' => $overcrowdedFacilities,
             ]);
         }
 
-        return view('dashboard.policy', compact('alertsByLevel', 'detaineesByFacility', 'resolutionsOverTime'));
+        return view('dashboard.policy', compact(
+            'alertsByLevel',
+            'detaineesByFacility',
+            'resolutionsOverTime',
+            'unableToPayBail',
+            'overcrowdedFacilities'
+        ));
     }
 }

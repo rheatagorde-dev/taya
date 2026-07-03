@@ -34,6 +34,15 @@ class DashboardController extends Controller
             'resolved_this_month' => Alert::whereNotNull('resolved_at')
                 ->where('resolved_at', '>=', now()->startOfMonth())
                 ->count(),
+            'unable_to_pay_bail' => Detainee::where('status', 'active')->where('bail_status', 'unable_to_pay')->count(),
+            'overcrowded_facilities' => Facility::whereExists(function ($query) {
+                $query->selectRaw('1')
+                    ->from('detainees')
+                    ->whereColumn('detainees.facility_id', 'facilities.id')
+                    ->where('detainees.status', 'active')
+                    ->groupBy('facility_id')
+                    ->havingRaw('COUNT(*) > facilities.capacity');
+            })->count(),
         ];
 
         $recentAuditLogs = AuditLog::with(['user', 'detainee'])
@@ -113,6 +122,19 @@ class DashboardController extends Controller
             ->pluck('count', 'month')
             ->toArray();
 
-        return view('dashboard.policy', compact('alertsByLevel', 'detaineesByFacility', 'resolutionsOverTime'));
+        $unableToPayBail = Detainee::where('status', 'active')
+            ->where('bail_status', 'unable_to_pay')
+            ->count();
+
+        $overcrowdedFacilities = Facility::whereExists(function ($query) {
+            $query->selectRaw('1')
+                ->from('detainees')
+                ->whereColumn('detainees.facility_id', 'facilities.id')
+                ->where('detainees.status', 'active')
+                ->groupBy('facility_id')
+                ->havingRaw('COUNT(*) > facilities.capacity');
+        })->count();
+
+        return view('dashboard.policy', compact('alertsByLevel', 'detaineesByFacility', 'resolutionsOverTime', 'unableToPayBail', 'overcrowdedFacilities'));
     }
 }

@@ -57,7 +57,7 @@
                     @forelse($facilities as $facility)
                         @php
                             $capacity = (int) ($facility->capacity ?: 0);
-                            $detainees = (int) $facility->detainees_count;
+                            $detainees = (int) ($facility->active_detainees_count ?? 0);
                             $occupancy = $capacity > 0 ? min(100, ($detainees / $capacity) * 100) : 0;
                             $barClass = $capacity > 0 && $detainees > $capacity ? 'bg-red-500' : ($occupancy >= 85 ? 'bg-amber-500' : 'bg-emerald-500');
                         @endphp

@@ -19,6 +19,10 @@ class StoreDetaineeRequest extends FormRequest
             'charge_rpc_code' => 'required|exists:penalty_references,id',
             'commitment_date' => 'required|date|before_or_equal:today',
             'facility_id' => 'required|exists:facilities,id',
+            'bail_amount' => 'nullable|integer|min:0',
+            'bail_status' => 'nullable|in:not_posted,posted,unable_to_pay,pending_review',
+            'bail_posted_at' => 'nullable|date|before_or_equal:now',
+            'bail_notes' => 'nullable|string',
         ];
     }
 

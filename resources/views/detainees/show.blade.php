@@ -129,6 +129,18 @@
                         <dd class="mt-1 text-sm text-gray-900">{{ $detainee->commitment_date->format('F d, Y') }}</dd>
                     </div>
                     <div>
+                        <dt class="text-xs font-medium text-gray-500 uppercase tracking-wider">Bail Amount</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ $detainee->bail_amount_display }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs font-medium text-gray-500 uppercase tracking-wider">Bail Status</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ $detainee->bail_status_label }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs font-medium text-gray-500 uppercase tracking-wider">Bail Posted Date</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ optional($detainee->bail_posted_at)->format('F d, Y') ?? 'N/A' }}</dd>
+                    </div>
+                    <div>
                         <dt class="text-xs font-medium text-gray-500 uppercase tracking-wider">Primary Charge (RPC/RA)</dt>
                         <dd class="mt-1 text-sm font-medium text-gray-900">[{{ $detainee->penaltyReference->rpc_code }}] {{ $detainee->penaltyReference->charge_name }}</dd>
                     </div>

@@ -16,6 +16,24 @@
         </a>
     </div>
 
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div class="glass-panel p-6 flex flex-col items-center text-center">
+            <div class="p-3 bg-orange-100 text-orange-600 rounded-xl mb-4">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM6.84 4.34L4.22 6.96A9.956 9.956 0 002 12c0 2.76 1.12 5.26 2.93 7.07C6.74 21.88 9.24 23 12 23s5.26-1.12 7.07-2.93C21.88 17.26 23 14.76 23 12c0-2.76-1.12-5.26-2.93-7.07L17.16 4.34A9.748 9.748 0 0012 2c-1.94 0-3.76.63-5.16 1.74z"></path></svg>
+            </div>
+            <p class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Unable to Pay Bail</p>
+            <p class="text-4xl font-bold text-gray-900 mt-2">{{ number_format($unableToPayBail) }}</p>
+        </div>
+
+        <div class="glass-panel p-6 flex flex-col items-center text-center">
+            <div class="p-3 bg-yellow-100 text-yellow-600 rounded-xl mb-4">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 19.5l9-6 9 6M3 7.5l9 6 9-6"/></svg>
+            </div>
+            <p class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Overcrowded Facilities</p>
+            <p class="text-4xl font-bold text-gray-900 mt-2">{{ number_format($overcrowdedFacilities) }}</p>
+        </div>
+    </div>
+
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <!-- Alerts by Level -->
         <div class="glass-panel p-6">

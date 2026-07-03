@@ -117,7 +117,9 @@ class AdminController extends Controller
 
     public function facilitiesIndex()
     {
-        $facilities = Facility::withCount('detainees')->paginate(20);
+        $facilities = Facility::withCount(['detainees as active_detainees_count' => function ($query) {
+            $query->where('status', 'active');
+        }])->paginate(20);
 
         return view('admin.facilities', compact('facilities'));
     }

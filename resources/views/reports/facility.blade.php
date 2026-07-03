@@ -35,8 +35,20 @@
             <td style="color: #d97706; font-weight: bold;">{{ $stats['at_risk'] ?? 0 }}</td>
         </tr>
         <tr>
+            <th>Total Active Detainees</th>
+            <td>{{ $stats['total_active'] ?? 0 }}</td>
+        </tr>
+        <tr>
             <th>Capacity Limit</th>
             <td>{{ $facility->capacity }}</td>
+        </tr>
+        <tr>
+            <th>Occupancy Rate</th>
+            <td>{{ $stats['occupancy_pct'] }}%</td>
+        </tr>
+        <tr>
+            <th>Over Capacity</th>
+            <td>{{ $stats['over_capacity'] ? 'Yes' : 'No' }}</td>
         </tr>
         <tr>
             <th>Address</th>

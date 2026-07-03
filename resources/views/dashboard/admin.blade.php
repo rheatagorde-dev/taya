@@ -5,7 +5,7 @@
 @section('content')
 <div class="space-y-6">
     <!-- Stats Row -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div class="glass-panel p-6 flex flex-col items-center text-center">
             <div class="p-3 bg-blue-100 text-blue-600 rounded-xl mb-4">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
@@ -37,6 +37,22 @@
             </div>
             <p class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Resolved This Month</p>
             <p class="text-4xl font-bold text-gray-900 mt-2">{{ number_format($stats['resolved_this_month']) }}</p>
+        </div>
+        
+        <div class="glass-panel p-6 flex flex-col items-center text-center">
+            <div class="p-3 bg-orange-100 text-orange-600 rounded-xl mb-4">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM6.84 4.34L4.22 6.96A9.956 9.956 0 002 12c0 2.76 1.12 5.26 2.93 7.07C6.74 21.88 9.24 23 12 23s5.26-1.12 7.07-2.93C21.88 17.26 23 14.76 23 12c0-2.76-1.12-5.26-2.93-7.07L17.16 4.34A9.748 9.748 0 0012 2c-1.94 0-3.76.63-5.16 1.74z"></path></svg>
+            </div>
+            <p class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Unable to Pay Bail</p>
+            <p class="text-4xl font-bold text-gray-900 mt-2">{{ number_format($stats['unable_to_pay_bail']) }}</p>
+        </div>
+        
+        <div class="glass-panel p-6 flex flex-col items-center text-center">
+            <div class="p-3 bg-yellow-100 text-yellow-600 rounded-xl mb-4">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 19.5l9-6 9 6M3 7.5l9 6 9-6"/></svg>
+            </div>
+            <p class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Overcrowded Facilities</p>
+            <p class="text-4xl font-bold text-gray-900 mt-2">{{ number_format($stats['overcrowded_facilities']) }}</p>
         </div>
     </div>
 
