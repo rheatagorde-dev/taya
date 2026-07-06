@@ -31,6 +31,51 @@
                     Edit Details
                 </a>
                 @if($detainee->status === 'active')
+                    @php
+                        $totalPhases = $detainee->phases()->count();
+                        $completedPhases = $detainee->phases()->where('completed', true)->count();
+                        $allPhasesComplete = $totalPhases > 0 && $completedPhases === $totalPhases;
+                        $hasUnresolvedAlerts = $detainee->alerts()->whereNull('resolved_at')->exists();
+                        $requiresOverride = !$allPhasesComplete || $hasUnresolvedAlerts;
+                    @endphp
+                    <div x-data="{ showReleaseForm: false }" class="space-y-2">
+                        @if(!$requiresOverride)
+                            <form action="{{ route('detainees.release', $detainee) }}" method="POST" onsubmit="return confirm('Mark this detainee as released? This will resolve any open alerts automatically.');">
+                                @csrf
+                                <button type="submit" class="btn-secondary text-amber-600 hover:text-amber-700 hover:bg-amber-50">
+                                    Mark as Released
+                                </button>
+                            </form>
+                        @else
+                            <div class="space-y-2">
+                                <button type="button" @click="showReleaseForm = true" class="btn-secondary text-amber-600 hover:text-amber-700 hover:bg-amber-50">
+                                    Mark as Released (Override)
+                                </button>
+                                <form action="{{ route('detainees.release', $detainee) }}" method="POST" x-show="showReleaseForm" x-cloak class="rounded-xl border border-amber-200 bg-amber-50 p-4 transition duration-150">
+                                    @csrf
+                                    <p class="text-sm font-semibold text-amber-900">Override release requires password confirmation.</p>
+                                    @if($hasUnresolvedAlerts && !$allPhasesComplete)
+                                        <p class="text-xs text-amber-700 mt-1">Detainee has completed {{ $completedPhases }} of {{ $totalPhases }} phases and has unresolved alerts.</p>
+                                    @elseif($hasUnresolvedAlerts)
+                                        <p class="text-xs text-amber-700 mt-1">Detainee has unresolved alerts.</p>
+                                    @else
+                                        <p class="text-xs text-amber-700 mt-1">Detainee has completed {{ $completedPhases }} of {{ $totalPhases }} phases.</p>
+                                    @endif
+                                    <div class="mt-4">
+                                        <label for="current_password" class="block text-sm font-medium text-gray-700">Current Password</label>
+                                        <input id="current_password" name="current_password" type="password" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-taya-accent focus:ring-taya-accent text-sm" autocomplete="current-password">
+                                        @error('current_password')
+                                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+                                    <div class="mt-4 flex gap-2">
+                                        <button type="submit" class="btn-secondary bg-amber-600 hover:bg-amber-700 text-white py-2 px-4">Confirm Release</button>
+                                        <button type="button" @click="showReleaseForm = false" class="btn-secondary bg-gray-100 text-gray-700 py-2 px-4">Cancel</button>
+                                    </div>
+                                </form>
+                            </div>
+                        @endif
+                    </div>
                     <form action="{{ route('detainees.destroy', $detainee) }}" method="POST" onsubmit="return confirm('Archive this record?');">
                         @csrf
                         @method('DELETE')
@@ -116,6 +161,64 @@
                             </div>
                         @endif
                     </div>
+                    @endif
+
+                    @if($latestAlert)
+                        @php
+                            $totalPhases = $detainee->phases->count();
+                            $completedPhases = $detainee->phases->where('completed', true)->count();
+                            $allPhasesComplete = $totalPhases > 0 && $totalPhases === $completedPhases;
+                        @endphp
+                        
+                        <div class="mt-6 pt-4 border-t border-gray-100">
+                            @if(!$latestAlert->resolved_at)
+                                <div x-data="{ showOverrideForm: false }">
+                                    <form action="{{ route('alerts.resolve', $latestAlert) }}" method="POST" onsubmit="return confirm('Resolve this alert?');">
+                                        @csrf
+                                        @if($allPhasesComplete)
+                                            <button type="submit" class="w-full btn-primary bg-green-600 hover:bg-green-700 shadow-green-500/30 py-2 flex justify-center items-center gap-2">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                                Mark Alert as Resolved
+                                            </button>
+                                        @else
+                                            <div class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 mb-4">
+                                                <p class="font-semibold">Override resolution requires confirmation.</p>
+                                                <p class="mt-2">The detainee has only completed {{ $completedPhases }} of {{ $totalPhases }} phases.</p>
+                                            </div>
+
+                                            <button type="button" @click="showOverrideForm = true" class="w-full btn-primary bg-amber-600 hover:bg-amber-700 shadow-amber-500/30 py-2 flex justify-center items-center gap-2">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                                Override and Resolve Alert
+                                            </button>
+
+                                            <div x-show="showOverrideForm" x-cloak class="mt-4 rounded-xl border border-amber-200 bg-white p-4 shadow-sm">
+                                                <div class="space-y-4">
+                                                    <div>
+                                                        <label for="current_password" class="block text-sm font-medium text-gray-700">Current Password</label>
+                                                        <input id="current_password" name="current_password" type="password" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-taya-accent focus:border-taya-accent text-sm" autocomplete="current-password">
+                                                        @error('current_password')
+                                                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                                        @enderror
+                                                    </div>
+                                                    <div class="flex items-center gap-2">
+                                                        <button type="submit" class="w-full btn-primary bg-amber-600 hover:bg-amber-700 shadow-amber-500/30 py-2 flex justify-center items-center gap-2">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                                            Confirm Override Resolve
+                                                        </button>
+                                                        <button type="button" @click="showOverrideForm = false" class="w-full btn-secondary bg-gray-100 text-gray-700 border-gray-300 py-2">Cancel</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </form>
+                                </div>
+                            @else
+                                <div class="w-full text-center px-3 py-2 rounded-lg bg-green-50 text-green-800 text-sm font-medium border border-green-100">
+                                    <svg class="w-4 h-4 inline-block mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                    Resolved on {{ $latestAlert->resolved_at->format('M d, Y') }}
+                                </div>
+                            @endif
+                        </div>
                     @endif
                 </div>
             </div>

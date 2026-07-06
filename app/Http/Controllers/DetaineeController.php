@@ -122,4 +122,34 @@ class DetaineeController extends Controller
         return redirect()->route('detainees.index')
             ->with('success', 'Detainee record archived successfully.');
     }
+
+    public function release(Request $request, Detainee $detainee)
+    {
+        $name = $detainee->full_name;
+
+        $totalPhases = $detainee->phases()->count();
+        $completedPhases = $detainee->phases()->where('completed', true)->count();
+        $allPhasesComplete = $totalPhases > 0 && $completedPhases === $totalPhases;
+        $hasUnresolvedAlerts = $detainee->alerts()->whereNull('resolved_at')->exists();
+        $requiresOverride = !$allPhasesComplete || $hasUnresolvedAlerts;
+
+        if ($requiresOverride) {
+            $request->validate([
+                'current_password' => ['required', 'current_password'],
+            ]);
+        }
+
+        $detainee->update(['status' => 'released']);
+
+        // Resolve any open alerts automatically when detainee is released
+        $detainee->alerts()->whereNull('resolved_at')->update([
+            'resolved_at' => now(),
+            'alert_level' => 'resolved'
+        ]);
+
+        AuditService::log('detainee_released', "Detainee {$name} marked as released", $detainee->id);
+
+        return redirect()->route('detainees.show', $detainee)
+            ->with('success', 'Detainee record marked as released. Any open alerts have been automatically resolved.');
+    }
 }

@@ -73,18 +73,30 @@
                     <p class="font-semibold">Phase status</p>
                     <p class="mt-1 text-blue-800">
                         {{ $allPhasesComplete ? 'All phases are completed.' : "{$completedPhases}/{$totalPhases} phases completed." }}
-                        Admins can still mark this alert as resolved manually.
+                        @if($allPhasesComplete)
+                            Admins may resolve this alert directly.
+                        @else
+                            Resolution requires override from the detainee record.
+                        @endif
                     </p>
                 </div>
                 
                 @if(!$alert->resolved_at && auth()->user()->hasRole('admin', 'pao_lawyer', 'ngo_lawyer'))
                     <div class="mt-6 pt-4 border-t border-blue-200">
-                        <form action="{{ route('alerts.resolve', $alert) }}" method="POST" onsubmit="return confirm('Mark this alert as completely resolved? This means legal action has succeeded or the detainee was released.');">
-                            @csrf
-                            <button type="submit" class="btn-primary bg-green-600 hover:bg-green-700 shadow-green-500/30">
-                                Mark Alert as Resolved
-                            </button>
-                        </form>
+                        @if($allPhasesComplete)
+                            <form action="{{ route('alerts.resolve', $alert) }}" method="POST" onsubmit="return confirm('Mark this alert as completely resolved? This means legal action has succeeded or the detainee was released.');" class="flex items-center gap-3">
+                                @csrf
+                                <button type="submit" class="btn-primary bg-green-600 hover:bg-green-700 shadow-green-500/30 flex justify-center items-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                    Mark Alert as Resolved
+                                </button>
+                            </form>
+                        @else
+                            <div class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                                <p class="font-semibold">This alert cannot be resolved from the queue.</p>
+                                <p class="mt-2">The detainee still has incomplete phases. Please resolve this alert from the detainee profile if you need to override resolution.</p>
+                            </div>
+                        @endif
                     </div>
                 @elseif($alert->resolved_at)
                     <div class="mt-4 inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm font-medium">

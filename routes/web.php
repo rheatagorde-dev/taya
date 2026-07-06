@@ -21,6 +21,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::middleware('role:admin,bjmp_staff,pao_lawyer,ngo_lawyer,court_admin,policy_advocate')->group(function () {
         Route::resource('detainees', \App\Http\Controllers\DetaineeController::class);
+        Route::post('detainees/{detainee}/release', [\App\Http\Controllers\DetaineeController::class, 'release'])->name('detainees.release');
         Route::post('phases/{phase}/complete', [\App\Http\Controllers\PhaseController::class, 'complete'])->name('phases.complete');
         Route::post('phases/{phase}/flag', [\App\Http\Controllers\PhaseController::class, 'flag'])->name('phases.flag');
         Route::resource('detainees.documents', \App\Http\Controllers\DocumentController::class)->only(['index', 'store', 'destroy', 'show']);

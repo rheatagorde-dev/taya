@@ -106,18 +106,33 @@ class AlertController extends Controller
 
     public function resolve(Request $request, Alert $alert)
     {
+        $detainee = $alert->detainee;
+        $totalPhases = $detainee->phases()->count();
+        $completedPhases = $detainee->phases()->where('completed', true)->count();
+        $allPhasesComplete = $totalPhases > 0 && $completedPhases === $totalPhases;
+
+        if (!$allPhasesComplete) {
+            $request->validate([
+                'current_password' => ['required', 'current_password'],
+            ]);
+        }
+
         $alert->update([
             'resolved_at' => now(),
             'alert_level' => 'resolved',
+            'admin_override' => !$allPhasesComplete,
+            'override_note' => !$allPhasesComplete ? 'Resolved via detainee profile override with password confirmation.' : null,
         ]);
 
         AuditService::log(
             'alert_resolved',
-            "Alert #{$alert->id} resolved by {$request->user()->name}",
+            "Alert #{$alert->id} resolved by {$request->user()->name}" . (!$allPhasesComplete ? ' (override)' : ''),
             $alert->detainee_id
         );
 
-        return redirect()->back()->with('success', 'Alert resolved successfully.');
+        return redirect()->back()->with('success', $allPhasesComplete
+            ? 'Alert resolved successfully.'
+            : 'Alert resolved successfully via override after password confirmation.');
     }
 
     public function adminOverride(UpdateAlertRequest $request, Alert $alert)
