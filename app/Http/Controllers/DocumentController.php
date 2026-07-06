@@ -19,25 +19,33 @@ class DocumentController extends Controller
 
     public function store(StoreDocumentRequest $request, Detainee $detainee)
     {
-        $file = $request->file('file');
-        $path = $file->store("documents/{$detainee->id}", 'local');
+        try {
+            $file = $request->file('file');
+            $path = $file->store("documents/{$detainee->id}", 'local');
 
-        Document::create([
-            'detainee_id' => $detainee->id,
-            'file_path' => $path,
-            'doc_type' => $request->input('doc_type'),
-            'phase_number' => $request->input('phase_number'),
-            'uploaded_by' => $request->user()->id,
-            'uploaded_at' => now(),
-        ]);
+            Document::create([
+                'detainee_id' => $detainee->id,
+                'file_path' => $path,
+                'doc_type' => $request->input('doc_type'),
+                'phase_number' => $request->input('phase_number'),
+                'uploaded_by' => $request->user()->id,
+                'uploaded_at' => now(),
+            ]);
 
-        AuditService::log(
-            'document_uploaded',
-            "Document ({$request->input('doc_type')}) uploaded for detainee {$detainee->full_name}",
-            $detainee->id
-        );
+            AuditService::log(
+                'document_uploaded',
+                "Document ({$request->input('doc_type')}) uploaded for detainee {$detainee->full_name}",
+                $detainee->id
+            );
 
-        return redirect()->back()->with('success', 'Document uploaded successfully.');
+            return redirect()->back()->with('success', 'Document uploaded successfully.');
+        } catch (\Throwable $e) {
+            report($e);
+
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Document upload failed: ' . $e->getMessage());
+        }
     }
 
     public function destroy(Detainee $detainee, Document $document)

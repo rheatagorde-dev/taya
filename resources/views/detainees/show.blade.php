@@ -338,7 +338,7 @@
             </div>
 
             <!-- Documents -->
-            <div class="glass-panel overflow-hidden" x-data="{ openUpload: false }">
+            <div class="glass-panel overflow-hidden" x-data="{ openUpload: {{ $errors->hasAny(['file', 'doc_type', 'phase_number']) ? 'true' : 'false' }} }">
                 <div class="p-5 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
                     <h3 class="text-lg font-semibold text-gray-900">Court Documents</h3>
                     @if(auth()->user()->hasRole('admin', 'bjmp_staff'))
@@ -352,29 +352,48 @@
                 <div x-show="openUpload" x-collapse class="border-b border-gray-100 bg-gray-50 p-5">
                     <form action="{{ route('detainees.documents.store', $detainee) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
                         @csrf
+                        @if(session('error'))
+                            <div class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+                                <p class="font-semibold">{{ session('error') }}</p>
+                            </div>
+                        @endif
+                        @if($errors->hasAny(['file', 'doc_type', 'phase_number']))
+                            <div class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+                                <p class="font-semibold">Upload failed. Please fix the errors below.</p>
+                            </div>
+                        @endif
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Document Type</label>
                                 <select name="doc_type" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-taya-accent focus:ring-taya-accent text-sm">
-                                    <option value="commitment_order">Commitment Order</option>
-                                    <option value="charge_sheet">Charge Sheet / Information</option>
-                                    <option value="court_record">Court Order / Resolution</option>
-                                    <option value="other">Other</option>
+                                    <option value="commitment_order" {{ old('doc_type') === 'commitment_order' ? 'selected' : '' }}>Commitment Order</option>
+                                    <option value="charge_sheet" {{ old('doc_type') === 'charge_sheet' ? 'selected' : '' }}>Charge Sheet / Information</option>
+                                    <option value="court_record" {{ old('doc_type') === 'court_record' ? 'selected' : '' }}>Court Order / Resolution</option>
+                                    <option value="other" {{ old('doc_type') === 'other' ? 'selected' : '' }}>Other</option>
                                 </select>
+                                @error('doc_type')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Related Phase (Optional)</label>
                                 <select name="phase_number" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-taya-accent focus:ring-taya-accent text-sm">
-                                    <option value="">None</option>
-                                    <option value="1">Phase 1: Prelim Investigation</option>
-                                    <option value="2">Phase 2: Filing of Info</option>
-                                    <option value="3">Phase 3: Arraignment</option>
-                                    <option value="4">Phase 4: Pre-Trial</option>
+                                    <option value="" {{ old('phase_number') === null ? 'selected' : '' }}>None</option>
+                                    <option value="1" {{ old('phase_number') === '1' ? 'selected' : '' }}>Phase 1: Prelim Investigation</option>
+                                    <option value="2" {{ old('phase_number') === '2' ? 'selected' : '' }}>Phase 2: Filing of Info</option>
+                                    <option value="3" {{ old('phase_number') === '3' ? 'selected' : '' }}>Phase 3: Arraignment</option>
+                                    <option value="4" {{ old('phase_number') === '4' ? 'selected' : '' }}>Phase 4: Pre-Trial</option>
                                 </select>
+                                @error('phase_number')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
                             </div>
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-medium text-gray-700">File (PDF/Image, Max 10MB)</label>
                                 <input type="file" name="file" required accept=".pdf,.jpg,.jpeg,.png" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-taya-accent hover:file:bg-blue-100">
+                                @error('file')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
                             </div>
                         </div>
                         <div class="flex justify-end gap-2">
