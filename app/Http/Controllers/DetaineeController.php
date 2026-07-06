@@ -31,8 +31,14 @@ class DetaineeController extends Controller
             $query->where('facility_id', $facility);
         }
 
-        if ($status = $request->input('status')) {
-            $query->where('status', $status);
+        if ($recordFilter = $request->input('record_filter')) {
+            [$type, $value] = explode(':', $recordFilter, 2) + [null, null];
+
+            if ($type === 'status' && $value) {
+                $query->where('status', $value);
+            } elseif ($type === 'alert' && $value) {
+                $query->whereHas('alerts', fn($q) => $q->where('alert_level', $value));
+            }
         }
 
         $detainees = $query->latest()->paginate(20)->withQueryString();

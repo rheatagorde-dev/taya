@@ -163,22 +163,24 @@ class PhaseComplianceService
         // Create or update alert
         $recommendedAction = $this->getRecommendedAction($alertLevel, $detainee);
 
+        $alertData = [
+            'computation_id' => $computation->id,
+            'detainee_id' => $detainee->id,
+            'alert_level' => $alertLevel,
+            'recommended_action' => $recommendedAction,
+        ];
+
+        if ($alertLevel === 'resolved') {
+            $alertData['resolved_at'] = now();
+        }
+
         $existingAlert = $detainee->alerts()->whereNull('resolved_at')->latest()->first();
 
         if ($existingAlert) {
-            $existingAlert->update([
-                'computation_id' => $computation->id,
-                'alert_level' => $alertLevel,
-                'recommended_action' => $recommendedAction,
-            ]);
+            $existingAlert->update($alertData);
             $alert = $existingAlert;
         } else {
-            $alert = Alert::create([
-                'computation_id' => $computation->id,
-                'detainee_id' => $detainee->id,
-                'alert_level' => $alertLevel,
-                'recommended_action' => $recommendedAction,
-            ]);
+            $alert = Alert::create($alertData);
         }
 
         // Send notification for critical/at-risk alerts

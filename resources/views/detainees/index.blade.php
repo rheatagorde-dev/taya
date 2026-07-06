@@ -24,12 +24,20 @@
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by name or charge..." class="pl-10 w-full rounded-lg border-gray-300 text-sm focus:ring-taya-accent focus:border-taya-accent">
             </div>
             
-            <select name="status" onchange="this.form.submit()" class="rounded-lg border-gray-300 text-sm focus:ring-taya-accent focus:border-taya-accent">
-                <option value="">All Statuses</option>
-                <option value="active" {{ request('status', 'active') === 'active' ? 'selected' : '' }}>Active</option>
-                <option value="released" {{ request('status') === 'released' ? 'selected' : '' }}>Released</option>
-                <option value="resolved" {{ request('status') === 'resolved' ? 'selected' : '' }}>Resolved</option>
-                <option value="archived" {{ request('status') === 'archived' ? 'selected' : '' }}>Archived</option>
+            <select name="record_filter" onchange="this.form.submit()" class="rounded-lg border-gray-300 text-sm focus:ring-taya-accent focus:border-taya-accent">
+                <option value="" {{ request('record_filter') === null || request('record_filter') === '' ? 'selected' : '' }}>All Statuses and Alerts</option>
+                <optgroup label="Detainee status">
+                    <option value="status:active" {{ request('record_filter') === 'status:active' ? 'selected' : '' }}>Active</option>
+                    <option value="status:released" {{ request('record_filter') === 'status:released' ? 'selected' : '' }}>Released</option>
+                    <option value="status:archived" {{ request('record_filter') === 'status:archived' ? 'selected' : '' }}>Archived</option>
+                </optgroup>
+                <optgroup label="Alert level">
+                    <option value="alert:critical" {{ request('record_filter') === 'alert:critical' ? 'selected' : '' }}>Critical</option>
+                    <option value="alert:at_risk" {{ request('record_filter') === 'alert:at_risk' ? 'selected' : '' }}>At Risk</option>
+                    <option value="alert:flagged" {{ request('record_filter') === 'alert:flagged' ? 'selected' : '' }}>Flagged</option>
+                    <option value="alert:monitored" {{ request('record_filter') === 'alert:monitored' ? 'selected' : '' }}>Monitored</option>
+                    <option value="alert:resolved" {{ request('record_filter') === 'alert:resolved' ? 'selected' : '' }}>Resolved</option>
+                </optgroup>
             </select>
             
             <select name="facility_id" onchange="this.form.submit()" class="rounded-lg border-gray-300 text-sm focus:ring-taya-accent focus:border-taya-accent">
@@ -45,7 +53,7 @@
                 Search
             </button>
             
-            @if(request()->hasAny(['search', 'status', 'facility_id']))
+            @if(request()->hasAny(['search', 'record_filter', 'facility_id']))
                 <a href="{{ route('detainees.index') }}" class="btn-secondary py-2 px-4 text-sm whitespace-nowrap">
                     Clear
                 </a>

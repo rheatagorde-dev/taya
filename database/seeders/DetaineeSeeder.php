@@ -16,6 +16,7 @@ class DetaineeSeeder extends Seeder
     {
         $facilities = Facility::all();
         $penalties = PenaltyReference::all();
+        $penaltyByCode = $penalties->keyBy('rpc_code');
         $admin = User::where('role', 'admin')->first();
 
         // Realistic current-time test data:
@@ -46,6 +47,17 @@ class DetaineeSeeder extends Seeder
             ['name' => 'Francisco Dagohoy',    'days_ago' => 120],
             ['name' => 'Diego Silang',         'days_ago' => 150],
 
+            // Status-specific records for queue filtering
+            ['name' => 'Ramon Magsaysay', 'days_ago' => 300, 'status' => 'released', 'rpc_code' => 'Art. 264', 'target_alert' => 'resolved'],
+            ['name' => 'Andrea dela Cruz', 'days_ago' => 420, 'status' => 'resolved', 'rpc_code' => 'Art. 264', 'target_alert' => 'resolved'],
+            ['name' => 'Marina Reyes', 'days_ago' => 180, 'status' => 'archived', 'rpc_code' => 'Art. 264', 'target_alert' => 'resolved'],
+
+            // Explicit alert level examples for the queue
+            ['name' => 'Carlos Villanueva', 'days_ago' => 400, 'rpc_code' => 'Art. 264', 'target_alert' => 'critical'],
+            ['name' => 'Rafael Tan', 'days_ago' => 310, 'rpc_code' => 'Art. 264', 'target_alert' => 'at_risk'],
+            ['name' => 'Fiona Mercado', 'days_ago' => 220, 'rpc_code' => 'Art. 264', 'target_alert' => 'flagged'],
+            ['name' => 'Miguel Santos', 'days_ago' => 90, 'rpc_code' => 'Art. 264', 'target_alert' => 'monitored'],
+
             // Long-term detainees — high overstay risk
             ['name' => 'Lapu-Lapu',            'days_ago' => 365],
             ['name' => 'Rajah Sulayman',       'days_ago' => 500],
@@ -56,7 +68,9 @@ class DetaineeSeeder extends Seeder
 
         foreach ($detainees as $data) {
             $facility = $facilities->random();
-            $penalty = $penalties->random();
+            $penalty = isset($data['rpc_code']) && isset($penaltyByCode[$data['rpc_code']])
+                ? $penaltyByCode[$data['rpc_code']]
+                : $penalties->random();
             $commitmentDate = Carbon::now()->subDays($data['days_ago']);
 
             $detainee = Detainee::create([
@@ -65,7 +79,7 @@ class DetaineeSeeder extends Seeder
                 'commitment_date' => $commitmentDate,
                 'charge_rpc_code' => $penalty->id,
                 'charge_description' => $penalty->charge_name,
-                'status' => 'active',
+                'status' => $data['status'] ?? 'active',
                 'created_by' => $admin->id,
             ]);
 
@@ -85,6 +99,14 @@ class DetaineeSeeder extends Seeder
 
             // Compute overstay and generate alerts
             $phaseService->computeOverstay($detainee);
+
+            if (!empty($data['target_alert'])) {
+                $latestAlert = $detainee->alerts()->latest()->first();
+                $latestAlert->update([
+                    'alert_level' => $data['target_alert'],
+                    'resolved_at' => $data['target_alert'] === 'resolved' ? now() : null,
+                ]);
+            }
         }
 
         // Flag all overdue phases

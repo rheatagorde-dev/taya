@@ -16,8 +16,26 @@ class AlertController extends Controller
     {
         $query = Alert::with(['detainee.facility', 'detainee.penaltyReference', 'detainee.phases', 'assignedUser', 'computation']);
 
-        if ($level = $request->input('alert_level')) {
-            $query->where('alert_level', $level);
+        $filter = $request->input('record_filter');
+
+        if ($filter === null || $filter === '') {
+            $filter = 'all_alerts';
+        }
+
+        if ($filter === 'unresolved') {
+            $query->whereNull('resolved_at');
+        } elseif ($filter === 'all_alerts') {
+            // no extra condition
+        } elseif ($filter === 'status:active') {
+            $query->whereHas('detainee', fn($q) => $q->where('status', 'active'));
+        } elseif ($filter === 'status:released') {
+            $query->whereHas('detainee', fn($q) => $q->where('status', 'released'));
+        } elseif ($filter === 'status:archived') {
+            $query->whereHas('detainee', fn($q) => $q->where('status', 'archived'));
+        } elseif ($filter === 'alert:resolved') {
+            $query->where('alert_level', 'resolved')->whereNotNull('resolved_at');
+        } elseif (str_starts_with($filter, 'alert:')) {
+            $query->where('alert_level', substr($filter, 6));
         }
 
         if ($facility = $request->input('facility_id')) {
@@ -30,10 +48,6 @@ class AlertController extends Controller
 
         if ($to = $request->input('date_to')) {
             $query->where('created_at', '<=', $to . ' 23:59:59');
-        }
-
-        if (!$request->has('show_resolved')) {
-            $query->whereNull('resolved_at');
         }
 
         $alerts = $query->orderByRaw("CASE alert_level

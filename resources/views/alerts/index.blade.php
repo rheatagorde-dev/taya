@@ -11,16 +11,23 @@
     <!-- Filter Bar -->
     <div class="glass-panel p-4 flex flex-col sm:flex-row gap-4 items-center justify-between">
         <form action="{{ route('alerts.index') }}" method="GET" class="flex flex-col sm:flex-row gap-4 w-full">
-            <select name="alert_level" class="rounded-lg border-gray-300 text-sm focus:ring-taya-accent focus:border-taya-accent">
-                <option value="">All Alert Levels</option>
-                <option value="critical" {{ request('alert_level') === 'critical' ? 'selected' : '' }}>Critical</option>
-                <option value="at_risk" {{ request('alert_level') === 'at_risk' ? 'selected' : '' }}>At Risk</option>
-                <option value="flagged" {{ request('alert_level') === 'flagged' ? 'selected' : '' }}>Flagged</option>
-                <option value="monitored" {{ request('alert_level') === 'monitored' ? 'selected' : '' }}>Monitored</option>
-                <option value="resolved" {{ request('alert_level') === 'resolved' ? 'selected' : '' }}>Resolved</option>
+            <select name="record_filter" onchange="this.form.submit()" class="rounded-lg border-gray-300 text-sm focus:ring-taya-accent focus:border-taya-accent">
+                <option value="" {{ request('record_filter') === null || request('record_filter') === '' ? 'selected' : '' }}>All Statuses and Alerts</option>
+                <optgroup label="Detainee status">
+                    <option value="status:active" {{ request('record_filter') === 'status:active' ? 'selected' : '' }}>Active</option>
+                    <option value="status:released" {{ request('record_filter') === 'status:released' ? 'selected' : '' }}>Released</option>
+                    <option value="status:archived" {{ request('record_filter') === 'status:archived' ? 'selected' : '' }}>Archived</option>
+                </optgroup>
+                <optgroup label="Alert level">
+                    <option value="alert:critical" {{ request('record_filter') === 'alert:critical' ? 'selected' : '' }}>Critical</option>
+                    <option value="alert:at_risk" {{ request('record_filter') === 'alert:at_risk' ? 'selected' : '' }}>At Risk</option>
+                    <option value="alert:flagged" {{ request('record_filter') === 'alert:flagged' ? 'selected' : '' }}>Flagged</option>
+                    <option value="alert:monitored" {{ request('record_filter') === 'alert:monitored' ? 'selected' : '' }}>Monitored</option>
+                    <option value="alert:resolved" {{ request('record_filter') === 'alert:resolved' ? 'selected' : '' }}>Resolved</option>
+                </optgroup>
             </select>
             
-            <select name="facility_id" class="rounded-lg border-gray-300 text-sm focus:ring-taya-accent focus:border-taya-accent">
+            <select name="facility_id" onchange="this.form.submit()" class="rounded-lg border-gray-300 text-sm focus:ring-taya-accent focus:border-taya-accent">
                 <option value="">All Facilities</option>
                 @foreach($facilities as $facility)
                     <option value="{{ $facility->id }}" {{ request('facility_id') == $facility->id ? 'selected' : '' }}>
@@ -29,16 +36,7 @@
                 @endforeach
             </select>
 
-            <div class="flex items-center gap-2">
-                <input type="checkbox" id="show_resolved" name="show_resolved" value="1" {{ request('show_resolved') ? 'checked' : '' }} class="rounded border-gray-300 text-taya-accent focus:ring-taya-accent">
-                <label for="show_resolved" class="text-sm text-gray-700">Include Resolved</label>
-            </div>
-            
-            <button type="submit" class="btn-primary py-2 px-4 text-sm whitespace-nowrap">
-                Filter
-            </button>
-            
-            @if(request()->hasAny(['alert_level', 'facility_id', 'show_resolved']))
+            @if(request()->hasAny(['record_filter', 'facility_id']))
                 <a href="{{ route('alerts.index') }}" class="btn-secondary py-2 px-4 text-sm whitespace-nowrap">
                     Clear
                 </a>
