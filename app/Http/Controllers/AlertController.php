@@ -16,6 +16,17 @@ class AlertController extends Controller
     {
         $query = Alert::with(['detainee.facility', 'detainee.penaltyReference', 'detainee.phases', 'assignedUser', 'computation']);
 
+        // Global search across detainee name, charge, and alert id
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('id', $search)
+                  ->orWhereHas('detainee', function ($dq) use ($search) {
+                      $dq->where('full_name', 'like', "%{$search}%")
+                         ->orWhere('charge_description', 'like', "%{$search}%");
+                  });
+            });
+        }
+
         $filter = $request->input('record_filter');
 
         if ($filter === null || $filter === '') {
@@ -148,6 +159,13 @@ class AlertController extends Controller
             "Alert #{$alert->id} overridden to {$request->input('alert_level')} by admin: {$request->input('override_note')}",
             $alert->detainee_id
         );
+
+        // If the override raises the alert to a high level and an assignee exists,
+        // notify the assigned user immediately. This ensures admins' overrides
+        // result in an email log entry when using the `log` mailer.
+        if (in_array($request->input('alert_level'), ['critical', 'at_risk']) && $alert->assigned_to) {
+            $alert->assignedUser->notify(new AlertNotification($alert));
+        }
 
         return redirect()->back()->with('success', 'Alert level overridden successfully.');
     }

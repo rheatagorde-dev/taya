@@ -49,13 +49,23 @@ class AdminController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
             'role' => 'required|in:admin,bjmp_staff,pao_lawyer,ngo_lawyer,court_admin,policy_advocate',
             'facility_id' => 'nullable|exists:facilities,id',
         ]);
 
-        $user->update($request->only(['name', 'role', 'facility_id']));
+        $oldName = $user->name;
 
-        AuditService::log('user_updated', "User {$user->name} updated to role {$request->input('role')}");
+        // Prevent changing the role of existing system admins.
+        $data = $request->only(['name', 'email', 'role', 'facility_id']);
+        if ($user->role === 'admin') {
+            // Ensure role remains 'admin' regardless of submitted value
+            $data['role'] = 'admin';
+        }
+
+        $user->update($data);
+
+        AuditService::log('user_updated', "User {$oldName} updated to {$user->name} ({$user->email}) and role {$user->role}");
 
         return redirect()->back()->with('success', 'User updated successfully.');
     }

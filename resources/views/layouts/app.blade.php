@@ -133,18 +133,62 @@
                     </button>
                     
                     <h1 class="text-xl font-bold text-gray-900 ml-2 lg:ml-0 hidden sm:block animate-fade-in">
-                        @yield('header', 'Dashboard')
+                        @if(isset($header))
+                            {{ $header }}
+                        @else
+                            @yield('header', 'Dashboard')
+                        @endif
                     </h1>
                 </div>
 
                 <div class="flex items-center gap-4">
-                    <!-- Notification Bell -->
-                    <a href="{{ route('alerts.index') }}" class="p-2 text-gray-400 hover:text-gray-500 relative transition-colors" aria-label="View alert queue">
-                        <span class="absolute top-1.5 right-1.5 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span>
-                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                        </svg>
-                    </a>
+                        @php
+                            $recentAlerts = \App\Models\Alert::with('detainee')->latest()->limit(5)->get();
+                            $unresolvedCount = \App\Models\Alert::whereNull('resolved_at')->count();
+                        @endphp
+                        <div x-data="{ open: false }" class="relative">
+                            <button @click="open = !open" @click.away="open = false" class="p-2 text-gray-400 hover:text-gray-500 relative transition-colors" aria-label="Notifications">
+                                @if($unresolvedCount > 0)
+                                    <span class="absolute top-1.5 right-1.5 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span>
+                                @endif
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                </svg>
+                            </button>
+
+                            <div x-show="open"
+                                 x-transition:enter="transition ease-out duration-100"
+                                 x-transition:enter-start="transform opacity-0 scale-95"
+                                 x-transition:enter-end="transform opacity-100 scale-100"
+                                 x-transition:leave="transition ease-in duration-75"
+                                 x-transition:leave-start="transform opacity-100 scale-100"
+                                 x-transition:leave-end="transform opacity-0 scale-95"
+                                 class="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg ring-1 ring-black ring-opacity-5 py-2 z-50" style="display: none;">
+                                <div class="px-4 py-3 border-b border-gray-100">
+                                    <div class="flex items-center justify-between">
+                                        <p class="text-sm font-semibold text-gray-900">Notifications</p>
+                                        <a href="{{ route('alerts.index') }}" class="text-xs text-gray-500 hover:underline">View all</a>
+                                    </div>
+                                    <p class="mt-1 text-xs text-gray-500">{{ $unresolvedCount }} unresolved alerts</p>
+                                </div>
+
+                                <div class="max-h-64 overflow-y-auto">
+                                    @forelse($recentAlerts as $r)
+                                        <a href="{{ route('alerts.show', $r) }}" class="block px-4 py-3 hover:bg-gray-50 border-b border-gray-100">
+                                            <div class="flex items-start gap-3">
+                                                <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 text-sm font-semibold text-gray-700">{{ strtoupper(substr($r->alert_level,0,1)) }}</span>
+                                                <div class="flex-1 min-w-0">
+                                                    <p class="text-sm font-medium text-gray-900 truncate">{{ $r->detainee->full_name }} <span class="text-xs text-gray-500">• {{ str_replace('_',' ', $r->alert_level) }}</span></p>
+                                                    <p class="text-xs text-gray-500 truncate">{{ $r->created_at->diffForHumans() }}</p>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    @empty
+                                        <div class="px-4 py-4 text-sm text-gray-500">No recent alerts.</div>
+                                    @endforelse
+                                </div>
+                            </div>
+                        </div>
 
                     <!-- Profile Dropdown -->
                     <div x-data="{ open: false }" class="relative">
@@ -164,8 +208,13 @@
                              x-transition:leave="transition ease-in duration-75"
                              x-transition:leave-start="transform opacity-100 scale-100"
                              x-transition:leave-end="transform opacity-0 scale-95"
-                             class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg ring-1 ring-black ring-opacity-5 py-1 z-50"
+                             class="absolute right-0 mt-2 w-60 bg-white rounded-xl shadow-lg ring-1 ring-black ring-opacity-5 py-1 z-50"
                              style="display: none;">
+                            <div class="px-4 py-4 border-b border-gray-100">
+                                <p class="text-sm font-semibold text-gray-900 truncate">{{ auth()->user()->name }}</p>
+                                <p class="text-xs text-gray-500 truncate">{{ auth()->user()->email }}</p>
+                                <p class="mt-2 text-xs uppercase tracking-wider text-gray-400">{{ str_replace('_', ' ', auth()->user()->role) }}</p>
+                            </div>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors">
@@ -217,7 +266,11 @@
                     </div>
                 @endif
 
-                @yield('content')
+                @if(isset($slot))
+                    {{ $slot }}
+                @else
+                    @yield('content')
+                @endif
             </main>
         </div>
     </div>

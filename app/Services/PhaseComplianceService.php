@@ -183,9 +183,22 @@ class PhaseComplianceService
             $alert = Alert::create($alertData);
         }
 
-        // Send notification for critical/at-risk alerts
-        if (in_array($alertLevel, ['critical', 'at_risk']) && $alert->assigned_to) {
-            $alert->assignedUser->notify(new AlertNotification($alert));
+        // Send notification for critical/at-risk alerts.
+        // If the alert is assigned, notify the assigned user. If unassigned,
+        // notify the pool of responsible users (admins / lawyers) so the
+        // alert still generates a mail log entry even when not explicitly assigned.
+        if (in_array($alertLevel, ['critical', 'at_risk'])) {
+            if ($alert->assigned_to) {
+                $alert->assignedUser->notify(new AlertNotification($alert));
+            } else {
+                $recipients = User::whereIn('role', ['admin', 'pao_lawyer', 'ngo_lawyer'])->get();
+                if ($recipients->isNotEmpty()) {
+                    \Illuminate\Support\Facades\Notification::send($recipients, new AlertNotification($alert));
+                } else {
+                    // As a fallback, write an audit/log entry so operators can spot the unassigned alert.
+                    \Illuminate\Support\Facades\Log::info("Unassigned alert requires attention: {$alert->id}", ['alert_id' => $alert->id]);
+                }
+            }
         }
 
         AuditService::log(

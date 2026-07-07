@@ -11,6 +11,7 @@
     <!-- Filter Bar -->
     <div class="glass-panel p-4 flex flex-col sm:flex-row gap-4 items-center justify-between">
         <form action="{{ route('alerts.index') }}" method="GET" class="flex flex-col sm:flex-row gap-4 w-full">
+            <input type="search" name="search" placeholder="Search detainee, charge, or alert id..." value="{{ request('search') }}" class="block w-full sm:w-80 rounded-lg border-gray-300 text-sm px-3 py-2" />
             <select name="record_filter" onchange="this.form.submit()" class="rounded-lg border-gray-300 text-sm focus:ring-taya-accent focus:border-taya-accent">
                 <option value="" {{ request('record_filter') === null || request('record_filter') === '' ? 'selected' : '' }}>All Statuses and Alerts</option>
                 <optgroup label="Detainee status">
@@ -36,7 +37,7 @@
                 @endforeach
             </select>
 
-            @if(request()->hasAny(['record_filter', 'facility_id']))
+            @if(request()->hasAny(['record_filter', 'facility_id', 'search']))
                 <a href="{{ route('alerts.index') }}" class="btn-secondary py-2 px-4 text-sm whitespace-nowrap">
                     Clear
                 </a>

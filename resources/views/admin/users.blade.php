@@ -100,6 +100,9 @@
                                          class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-20 py-1"
                                          style="display: none;">
                                          
+                                        <button @click="$dispatch('open-edit-user-modal', { id: {{ $user->id }}, name: '{{ addslashes($user->name) }}', email: '{{ addslashes($user->email) }}', role: '{{ $user->role }}', facility_id: '{{ $user->facility_id }}' })" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                            Edit User
+                                        </button>
                                         <button @click="$dispatch('open-change-password-modal', { id: {{ $user->id }}, name: '{{ addslashes($user->name) }}' })" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                             Change Password
                                         </button>
@@ -210,6 +213,88 @@
                 </div>
             </form>
         </div>
+</div>
+
+<!-- Edit User Modal (AlpineJS driven) -->
+<div x-data="{
+        show: false,
+        userId: null,
+        userName: '',
+        userEmail: '',
+        userRole: '',
+        userFacilityId: '',
+        openEdit(user) {
+            this.userId = user.id;
+            this.userName = user.name;
+            this.userEmail = user.email;
+            this.userRole = user.role;
+            this.userFacilityId = user.facility_id;
+            this.show = true;
+        }
+     }"
+     x-show="show"
+     x-transition.opacity.duration.300ms
+     x-on:open-edit-user-modal.window="if ($event.detail) { $nextTick(() => { openEdit($event.detail); }) }"
+     x-on:keydown.escape.window="if (show) { show = false; $event.stopPropagation(); }"
+     style="display: none; z-index: 9999;"
+     class="fixed inset-0 flex items-center justify-center p-4 bg-gray-900/75 backdrop-blur-sm overflow-y-auto"
+     aria-labelledby="modal-title" role="dialog" aria-modal="true"
+     @mousedown.self="show = false">
+    <div style="width: 100%; max-width: 32rem;" class="relative bg-white rounded-2xl text-left shadow-2xl overflow-hidden transform transition-all my-8">
+        <form :action="'/admin/users/' + userId" method="POST">
+            @csrf
+            @method('PUT')
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="mb-5">
+                    <h3 class="text-lg leading-6 font-bold text-gray-900" id="modal-title">Edit User</h3>
+                    <p class="text-sm text-gray-500 mt-1">Update name, email, role, or facility assignment.</p>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Full Name</label>
+                        <input type="text" name="name" x-model="userName" required class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm outline-none focus:border-taya-accent focus:ring-1 focus:ring-taya-accent transition-colors">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Email Address</label>
+                        <input type="email" name="email" x-model="userEmail" required class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm outline-none focus:border-taya-accent focus:ring-1 focus:ring-taya-accent transition-colors">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Role</label>
+                        <select name="role" x-model="userRole" required :disabled="userRole === 'admin'" class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm outline-none focus:border-taya-accent focus:ring-1 focus:ring-taya-accent transition-colors" :class="userRole === 'admin' ? 'opacity-60 cursor-not-allowed' : ''">
+                            <option value="bjmp_staff">BJMP Staff</option>
+                            <option value="pao_lawyer">PAO Lawyer</option>
+                            <option value="ngo_lawyer">NGO Lawyer</option>
+                            <option value="court_admin">Court Administrator</option>
+                            <option value="policy_advocate">Policy Advocate</option>
+                            <option value="admin">System Admin</option>
+                        </select>
+                        <p x-show="userRole === 'admin'" class="mt-2 text-xs text-gray-500">System Admin role cannot be changed.</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Facility Assignment (Optional)</label>
+                        <select name="facility_id" x-model="userFacilityId" class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm outline-none focus:border-taya-accent focus:ring-1 focus:ring-taya-accent transition-colors">
+                            <option value="">System Wide / None</option>
+                            @foreach($facilities as $facility)
+                                <option value="{{ $facility->id }}">{{ $facility->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-100">
+                <button type="submit" class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-taya-accent text-base font-medium text-white hover:bg-taya-accent-dark focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
+                    Save Changes
+                </button>
+                <button type="button" @click="show = false" class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 
 <!-- Change Password Modal (AlpineJS driven) -->

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\AuditLog;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class AuditService
 {
@@ -12,7 +13,7 @@ class AuditService
      */
     public static function log(string $action, string $description, ?int $detaineeId = null, ?int $userId = null): AuditLog
     {
-        return AuditLog::create([
+        $audit = AuditLog::create([
             'user_id' => $userId ?? Auth::id(),
             'detainee_id' => $detaineeId,
             'action' => $action,
@@ -20,5 +21,23 @@ class AuditService
             'ip_address' => request()->ip(),
             'created_at' => now(),
         ]);
+
+        // Also write a structured entry to the application log so system operators
+        // can see audit events in `storage/logs/laravel.log` alongside the DB record.
+        try {
+            Log::info('audit_event', [
+                'audit_id' => $audit->id,
+                'action' => $action,
+                'description' => $description,
+                'user_id' => $audit->user_id,
+                'detainee_id' => $audit->detainee_id,
+                'ip' => $audit->ip_address,
+                'created_at' => $audit->created_at->toDateTimeString(),
+            ]);
+        } catch (\Throwable $e) {
+            // Never let logging failures break the application flow; continue silently.
+        }
+
+        return $audit;
     }
 }

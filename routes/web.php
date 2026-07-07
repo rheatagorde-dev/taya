@@ -14,11 +14,6 @@ Route::get('/', function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
 
-    // User profile routes (edit, update, destroy)
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
     Route::middleware('role:admin,bjmp_staff,pao_lawyer,ngo_lawyer,court_admin,policy_advocate')->group(function () {
         Route::resource('detainees', \App\Http\Controllers\DetaineeController::class);
         Route::post('detainees/{detainee}/release', [\App\Http\Controllers\DetaineeController::class, 'release'])->name('detainees.release');
