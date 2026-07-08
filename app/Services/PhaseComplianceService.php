@@ -133,6 +133,24 @@ class PhaseComplianceService
     /**
      * Compute overstay for a detainee and generate/update alerts.
      */
+    public function reschedulePhases(Detainee $detainee): void
+    {
+        $commitmentDate = Carbon::parse($detainee->commitment_date);
+        $phases = $detainee->phases()->orderBy('phase_number')->get();
+        $currentDueDate = $commitmentDate->copy();
+
+        foreach ($phases as $phase) {
+            $currentDueDate = $currentDueDate->copy()->addDays($phase->day_count);
+            $phase->update(['due_date' => $currentDueDate]);
+        }
+
+        AuditService::log(
+            'phases_rescheduled',
+            "Phases rescheduled for detainee {$detainee->full_name} based on updated commitment date {$detainee->commitment_date->toDateString()}",
+            $detainee->id
+        );
+    }
+
     public function computeOverstay(Detainee $detainee): OverstayComputation
     {
         $penalty = $detainee->penaltyReference;

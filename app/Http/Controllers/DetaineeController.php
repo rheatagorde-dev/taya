@@ -106,6 +106,12 @@ class DetaineeController extends Controller
     {
         $detainee->update($request->validated());
 
+        if ($detainee->wasChanged('commitment_date')) {
+            $this->phaseService->reschedulePhases($detainee);
+        }
+
+        $this->phaseService->computeOverstay($detainee);
+
         AuditService::log('detainee_updated', "Detainee {$detainee->full_name} updated", $detainee->id);
 
         return redirect()->route('detainees.show', $detainee)
