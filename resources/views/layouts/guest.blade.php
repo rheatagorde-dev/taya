@@ -175,6 +175,58 @@
                 border-color: #3b82f6 !important;
                 box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15), 0 0 20px rgba(59, 130, 246, 0.1);
             }
+
+            /* Back / secondary button used below the login card */
+            .btn-back {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                padding: 11px 22px;
+                border-radius: 100px;
+                background: rgba(255,255,255,0.04);
+                border: 1px solid #2a3363;
+                color: #a2ade0;
+                font-size: 13.5px;
+                font-weight: 500;
+                font-family: 'IBM Plex Sans', sans-serif;
+                text-decoration: none;
+                transition: background .15s ease, border-color .15s ease, color .15s ease, transform .15s ease;
+            }
+            .btn-back:hover {
+                background: rgba(255,255,255,0.07);
+                border-color: rgba(34,211,238,0.4);
+                color: #f5f7fa;
+                transform: translateY(-1px);
+            }
+            .btn-back svg {
+                transition: transform .15s ease;
+            }
+            .btn-back:hover svg {
+                transform: translateX(-2px);
+            }
+
+            /* Public page staff-login button */
+            .public-staff-button {
+                color: #93c5fd;
+                background: transparent;
+                border: none;
+                font-weight: 600;
+                padding: 0.5rem 0.75rem;
+                transition: color 0.15s ease;
+            }
+            .public-staff-button:hover { color: #c7e6ff; }
+
+            /* Search button refinement for public lookup */
+            .btn-search {
+                background: linear-gradient(90deg, #06b6d4 0%, #3b82f6 100%);
+                color: #fff;
+                font-weight: 700;
+                border-radius: 0.75rem;
+                padding: 0.9rem 1rem;
+                box-shadow: 0 12px 30px rgba(59,130,246,0.14);
+                transition: transform 0.15s ease, box-shadow 0.15s ease;
+            }
+            .btn-search:hover { transform: translateY(-2px); box-shadow: 0 18px 36px rgba(59,130,246,0.18); }
         </style>
     </head>
     <body class="font-sans antialiased">
@@ -198,6 +250,8 @@
             <div class="w-full sm:max-w-md login-card rounded-2xl p-8 relative z-10 animate-card-in stagger-1 transition-all duration-300">
                 {{ $slot }}
             </div>
+
+            @stack('below-login')
 
             <!-- Footer -->
             <div class="relative z-10 mt-8 text-center animate-card-in stagger-3">

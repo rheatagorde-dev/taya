@@ -20,6 +20,12 @@
                 @endif
             </h2>
             <p class="text-sm text-gray-500 mt-1">ID: {{ str_pad($detainee->id, 6, '0', STR_PAD_LEFT) }} | {{ $detainee->facility->name }}</p>
+            @if($detainee->tracking_code)
+                <div class="mt-2 inline-flex items-center gap-2 rounded-full border border-taya-accent/20 bg-taya-accent/10 px-3 py-1 text-sm font-medium text-taya-accent">
+                    <span>Tracking Code:</span>
+                    <span class="font-semibold">{{ $detainee->tracking_code }}</span>
+                </div>
+            @endif
         </div>
         
         @if(auth()->user()->hasRole('admin', 'bjmp_staff'))

@@ -57,8 +57,12 @@ class DetaineeController extends Controller
 
     public function store(StoreDetaineeRequest $request)
     {
+        $validated = $request->validated();
+
         $detainee = Detainee::create([
-            ...$request->validated(),
+            ...$validated,
+            'tracking_code' => $this->generateTrackingCode(),
+            'tracking_enabled' => $validated['tracking_enabled'] ?? true,
             'created_by' => $request->user()->id,
             'status' => 'active',
         ]);
@@ -73,6 +77,15 @@ class DetaineeController extends Controller
 
         return redirect()->route('detainees.show', $detainee)
             ->with('success', 'Detainee record created successfully. Phases initialized and overstay computed.');
+    }
+
+    protected function generateTrackingCode(): string
+    {
+        do {
+            $code = 'TAYA-' . strtoupper(substr(str_shuffle('ABCDEFGHJKLMNPQRSTUVWXYZ23456789'), 0, 6));
+        } while (Detainee::where('tracking_code', $code)->exists());
+
+        return $code;
     }
 
     public function show(Detainee $detainee)

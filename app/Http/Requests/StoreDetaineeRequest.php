@@ -23,6 +23,10 @@ class StoreDetaineeRequest extends FormRequest
             'bail_status' => 'nullable|in:not_posted,posted,unable_to_pay,pending_review',
             'bail_posted_at' => 'nullable|date|before_or_equal:now',
             'bail_notes' => 'nullable|string',
+            'relative_name' => 'nullable|string|max:255',
+            'relative_phone' => 'nullable|string|max:20',
+            'relative_email' => 'nullable|email|max:255',
+            'tracking_enabled' => 'nullable|boolean',
         ];
     }
 

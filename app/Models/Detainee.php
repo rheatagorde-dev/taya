@@ -20,6 +20,11 @@ class Detainee extends Model
         'commitment_date',
         'facility_id',
         'status',
+        'tracking_code',
+        'relative_name',
+        'relative_phone',
+        'relative_email',
+        'tracking_enabled',
         'created_by',
         'bail_amount',
         'bail_status',
@@ -32,6 +37,7 @@ class Detainee extends Model
         return [
             'commitment_date' => 'date',
             'bail_posted_at' => 'datetime',
+            'tracking_enabled' => 'boolean',
         ];
     }
 

@@ -90,6 +90,11 @@
                 </x-nav-link>
                 @endif
 
+                <div class="pt-4 pb-2 px-3 text-xs font-semibold text-white/40 uppercase tracking-wider">Public Tools</div>
+                <x-nav-link href="{{ route('tracking.lookup') }}" :active="request()->routeIs('tracking.*')" icon="magnifying-glass">
+                    Detainee Tracking
+                </x-nav-link>
+
                 @if($isAdmin)
                 <div class="pt-4 pb-2 px-3 text-xs font-semibold text-white/40 uppercase tracking-wider">Administration</div>
                 <x-nav-link href="{{ route('admin.users.index') }}" :active="request()->routeIs('admin.users.*')" icon="user-group">

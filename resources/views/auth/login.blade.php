@@ -11,6 +11,8 @@
         <p style="color: rgba(255,255,255,0.55); font-size: 0.875rem; margin-top: 0.25rem;">Sign in to access your dashboard</p>
     </div>
 
+    {{-- Login form follows... --}}
+
     <form method="POST" action="{{ route('login') }}">
         @csrf
 
@@ -91,4 +93,14 @@
             Sign In
         </button>
     </form>
+
+    @push('below-login')
+        <div class="relative z-10 mt-6 text-center">
+            <a href="{{ route('tracking.lookup') }}" role="button" class="btn-back">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                Back to public interface
+            </a>
+        </div>
+    @endpush
+
 </x-guest-layout>

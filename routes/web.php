@@ -8,8 +8,12 @@ Route::get('/', function () {
         return redirect()->route('dashboard');
     }
 
+    // Default start page: staff login
     return redirect()->route('login');
 });
+
+Route::get('/track', [\App\Http\Controllers\TrackingController::class, 'lookup'])->name('tracking.lookup');
+Route::get('/track/{code}', [\App\Http\Controllers\TrackingController::class, 'show'])->name('tracking.show');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
