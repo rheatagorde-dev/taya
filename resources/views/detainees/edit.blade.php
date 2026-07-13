@@ -112,6 +112,52 @@
                     @enderror
                 </div>
 
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div>
+                        <label for="relative_name" class="block text-sm font-medium text-gray-700">Relative Name</label>
+                        <div class="mt-1">
+                            <input type="text" name="relative_name" id="relative_name" value="{{ old('relative_name', $detainee->relative_name) }}"
+                                   class="shadow-sm focus:ring-taya-accent focus:border-taya-accent block w-full sm:text-sm border-gray-300 rounded-lg">
+                        </div>
+                        @error('relative_name')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="relative_phone" class="block text-sm font-medium text-gray-700">Relative Phone Number</label>
+                        <div class="mt-1">
+                            <input type="text" name="relative_phone" id="relative_phone" value="{{ old('relative_phone', $detainee->relative_phone) }}"
+                                   class="shadow-sm focus:ring-taya-accent focus:border-taya-accent block w-full sm:text-sm border-gray-300 rounded-lg">
+                        </div>
+                        @error('relative_phone')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+
+                <div>
+                    <label for="relative_email" class="block text-sm font-medium text-gray-700">Relative Email</label>
+                    <div class="mt-1">
+                        <input type="email" name="relative_email" id="relative_email" value="{{ old('relative_email', $detainee->relative_email) }}"
+                               class="shadow-sm focus:ring-taya-accent focus:border-taya-accent block w-full sm:text-sm border-gray-300 rounded-lg">
+                    </div>
+                    @error('relative_email')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="flex items-start gap-3">
+                    <div class="mt-2">
+                        <input type="checkbox" name="tracking_enabled" id="tracking_enabled" value="1" {{ old('tracking_enabled', $detainee->tracking_enabled) ? 'checked' : '' }}
+                               class="h-4 w-4 rounded border-gray-300 text-taya-accent focus:ring-taya-accent">
+                    </div>
+                    <div>
+                        <label for="tracking_enabled" class="font-medium text-gray-900">Enable public tracking</label>
+                        <p class="text-sm text-gray-500">Allow this detainee to be looked up by tracking code.</p>
+                    </div>
+                </div>
+
                 <!-- Charge Reference (Penalty mapping) -->
                 <div>
                     <label for="charge_rpc_code" class="block text-sm font-medium text-gray-700">Primary Charge Category (RPC/RA)</label>

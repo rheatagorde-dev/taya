@@ -43,6 +43,13 @@ class Detainee extends Model
 
     protected static function booted(): void
     {
+        static::retrieved(function (Detainee $detainee) {
+            if (empty($detainee->tracking_code)) {
+                $detainee->tracking_code = static::generateTrackingCode();
+                $detainee->saveQuietly();
+            }
+        });
+
         static::saving(function (Detainee $detainee) {
             if (empty($detainee->tracking_code)) {
                 $detainee->tracking_code = static::generateTrackingCode();
