@@ -41,6 +41,24 @@ class Detainee extends Model
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::saving(function (Detainee $detainee) {
+            if (empty($detainee->tracking_code)) {
+                $detainee->tracking_code = static::generateTrackingCode();
+            }
+        });
+    }
+
+    public static function generateTrackingCode(): string
+    {
+        do {
+            $code = 'TAYA-' . strtoupper(substr(str_shuffle('ABCDEFGHJKLMNPQRSTUVWXYZ23456789'), 0, 6));
+        } while (static::where('tracking_code', $code)->exists());
+
+        return $code;
+    }
+
     public function facility(): BelongsTo
     {
         return $this->belongsTo(Facility::class);

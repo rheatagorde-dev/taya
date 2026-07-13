@@ -9,11 +9,7 @@ use App\Models\Detainee;
 $count = 0;
 
 foreach (Detainee::whereNull('tracking_code')->orWhere('tracking_code', '')->cursor() as $detainee) {
-    do {
-        $code = 'TAYA-' . strtoupper(substr(str_shuffle('ABCDEFGHJKLMNPQRSTUVWXYZ23456789'), 0, 6));
-    } while (Detainee::where('tracking_code', $code)->exists());
-
-    $detainee->tracking_code = $code;
+    $detainee->tracking_code = Detainee::generateTrackingCode();
     $detainee->save();
     $count++;
 }
