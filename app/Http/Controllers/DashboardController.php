@@ -17,10 +17,7 @@ class DashboardController extends Controller
 
         return match ($user->role) {
             'admin' => $this->adminDashboard(),
-            'bjmp_staff' => $this->bjmpDashboard($user),
-            'pao_lawyer', 'ngo_lawyer' => $this->lawyerDashboard($user),
-            'court_admin' => $this->lawyerDashboard($user),
-            'policy_advocate' => $this->policyDashboard(),
+            'authorized_user' => $this->lawyerDashboard($user),
             default => redirect('/'),
         };
     }

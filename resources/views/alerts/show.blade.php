@@ -81,7 +81,7 @@
                     </p>
                 </div>
                 
-                @if(!$alert->resolved_at && auth()->user()->hasRole('admin', 'pao_lawyer', 'ngo_lawyer'))
+                @if(!$alert->resolved_at && auth()->user()->hasRole('admin', 'authorized_user'))
                     <div class="mt-6 pt-4 border-t border-blue-200">
                         @if($allPhasesComplete)
                             <form action="{{ route('alerts.resolve', $alert) }}" method="POST" onsubmit="return confirm('Mark this alert as completely resolved? This means legal action has succeeded or the detainee was released.');" class="flex items-center gap-3">
@@ -107,7 +107,7 @@
             </div>
 
             <!-- Log Legal Action -->
-            @if(!$alert->resolved_at && auth()->user()->hasRole('admin', 'pao_lawyer', 'ngo_lawyer', 'court_admin'))
+            @if(!$alert->resolved_at && auth()->user()->hasRole('admin', 'authorized_user'))
                 <div class="glass-panel p-6">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Log New Legal Action</h3>
                     <form action="{{ route('detainees.legal-actions.store', $alert->detainee) }}" method="POST" class="space-y-4">
@@ -173,7 +173,7 @@
         <div class="space-y-6">
             
             <!-- Assignment (Admin only) -->
-            @if(!$alert->resolved_at && auth()->user()->hasRole('admin', 'pao_lawyer', 'ngo_lawyer'))
+            @if(!$alert->resolved_at && auth()->user()->hasRole('admin', 'authorized_user'))
                 <div class="glass-panel p-5">
                     <h3 class="text-sm font-semibold text-gray-900 mb-3">Assign Case</h3>
                     <form action="{{ route('alerts.assign', $alert) }}" method="POST" class="flex flex-col gap-3">

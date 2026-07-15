@@ -60,40 +60,33 @@
                 @php
                     $role = auth()->user()->role;
                     $isAdmin = $role === 'admin';
-                    $isBjmp = in_array($role, ['admin', 'bjmp_staff']);
-                    $isLawyer = in_array($role, ['admin', 'pao_lawyer', 'ngo_lawyer', 'court_admin']);
-                    $isPolicy = in_array($role, ['admin', 'policy_advocate']);
+                    $isAuthorized = $role === 'authorized_user';
                 @endphp
 
                 <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')" icon="home">
                     Dashboard
                 </x-nav-link>
 
-                @if($isBjmp || $isAdmin || $isPolicy)
+                @if($isAuthorized || $isAdmin)
                 <div class="pt-4 pb-2 px-3 text-xs font-semibold text-white/40 uppercase tracking-wider">Detainee Management</div>
                 <x-nav-link href="{{ route('detainees.index') }}" :active="request()->routeIs('detainees.*')" icon="users">
                     Detainee Records
                 </x-nav-link>
                 @endif
 
-                @if($isLawyer || $isAdmin)
+                @if($isAuthorized || $isAdmin)
                 <div class="pt-4 pb-2 px-3 text-xs font-semibold text-white/40 uppercase tracking-wider">Alerts & Legal Actions</div>
                 <x-nav-link href="{{ route('alerts.index') }}" :active="request()->routeIs('alerts.*')" icon="bell">
                     Alert Queue
                 </x-nav-link>
                 @endif
 
-                @if($isPolicy || $isAdmin || $role === 'court_admin')
+                @if($isAuthorized || $isAdmin)
                 <div class="pt-4 pb-2 px-3 text-xs font-semibold text-white/40 uppercase tracking-wider">Reports & Analytics</div>
                 <x-nav-link href="{{ route('reports.analytics') }}" :active="request()->routeIs('reports.analytics')" icon="chart-bar">
                     System Analytics
                 </x-nav-link>
                 @endif
-
-                <div class="pt-4 pb-2 px-3 text-xs font-semibold text-white/40 uppercase tracking-wider">Public Tools</div>
-                <x-nav-link href="{{ route('tracking.lookup') }}" :active="request()->routeIs('tracking.*')" icon="magnifying-glass">
-                    Detainee Tracking
-                </x-nav-link>
 
                 @if($isAdmin)
                 <div class="pt-4 pb-2 px-3 text-xs font-semibold text-white/40 uppercase tracking-wider">Administration</div>

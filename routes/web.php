@@ -10,7 +10,7 @@ Route::get('/track/{code}', [\App\Http\Controllers\TrackingController::class, 's
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
 
-    Route::middleware('role:admin,bjmp_staff,pao_lawyer,ngo_lawyer,court_admin,policy_advocate')->group(function () {
+    Route::middleware('role:admin,authorized_user')->group(function () {
         Route::resource('detainees', \App\Http\Controllers\DetaineeController::class);
         Route::post('detainees/{detainee}/release', [\App\Http\Controllers\DetaineeController::class, 'release'])->name('detainees.release');
         Route::post('phases/{phase}/complete', [\App\Http\Controllers\PhaseController::class, 'complete'])->name('phases.complete');
@@ -19,7 +19,7 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('detainees.legal-actions', \App\Http\Controllers\LegalActionController::class)->only(['index', 'store']);
     });
 
-    Route::middleware('role:admin,pao_lawyer,ngo_lawyer,court_admin,policy_advocate')->group(function () {
+    Route::middleware('role:admin,authorized_user')->group(function () {
         Route::resource('alerts', \App\Http\Controllers\AlertController::class)->only(['index', 'show']);
         Route::post('alerts/{alert}/assign', [\App\Http\Controllers\AlertController::class, 'assign'])->name('alerts.assign');
         Route::post('alerts/{alert}/resolve', [\App\Http\Controllers\AlertController::class, 'resolve'])->name('alerts.resolve');
@@ -53,7 +53,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('admin/audit-logs', [\App\Http\Controllers\AuditLogController::class, 'index'])->name('admin.audit-logs.index');
     });
 
-    Route::middleware('role:admin,policy_advocate,court_admin')->group(function () {
+    Route::middleware('role:admin,authorized_user')->group(function () {
         Route::get('reports/facility/{facility}', [\App\Http\Controllers\ReportController::class, 'facilityReport'])->name('reports.facility');
         Route::get('reports/alert/{alert}', [\App\Http\Controllers\ReportController::class, 'caseAlert'])->name('reports.alert');
         Route::get('reports/detainee/{detainee}', [\App\Http\Controllers\ReportController::class, 'detaineeProfile'])->name('reports.detainee');

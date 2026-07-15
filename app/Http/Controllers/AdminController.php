@@ -28,7 +28,7 @@ class AdminController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
             'password' => 'required|string|min:8',
-            'role' => 'required|in:admin,bjmp_staff,pao_lawyer,ngo_lawyer,court_admin,policy_advocate',
+            'role' => 'required|in:admin,authorized_user',
             'facility_id' => 'nullable|exists:facilities,id',
         ]);
 
@@ -50,7 +50,7 @@ class AdminController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
-            'role' => 'required|in:admin,bjmp_staff,pao_lawyer,ngo_lawyer,court_admin,policy_advocate',
+            'role' => 'required|in:admin,authorized_user',
             'facility_id' => 'nullable|exists:facilities,id',
         ]);
 

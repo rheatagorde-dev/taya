@@ -209,7 +209,7 @@ class PhaseComplianceService
             if ($alert->assigned_to) {
                 $alert->assignedUser->notify(new AlertNotification($alert));
             } else {
-                $recipients = User::whereIn('role', ['admin', 'pao_lawyer', 'ngo_lawyer'])->get();
+                $recipients = User::whereIn('role', ['admin', 'authorized_user'])->get();
                 if ($recipients->isNotEmpty()) {
                     \Illuminate\Support\Facades\Notification::send($recipients, new AlertNotification($alert));
                 } else {

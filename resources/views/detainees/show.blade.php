@@ -28,7 +28,7 @@
             @endif
         </div>
         
-        @if(auth()->user()->hasRole('admin', 'bjmp_staff'))
+        @if(auth()->user()->isAdmin())
             <div class="flex gap-2">
                 <a href="{{ route('reports.detainee', $detainee) }}" target="_blank" class="btn-secondary">
                     Download PDF
@@ -397,7 +397,7 @@
                                     @endif
 
                                     {{-- Actions --}}
-                                    @if(!$phase->completed && auth()->user()->hasRole('admin', 'bjmp_staff'))
+                                    @if(!$phase->completed && auth()->user()->isAdmin())
                                         <div class="p-4 space-y-3">
                                             <div class="flex flex-wrap items-center gap-2">
                                                 @if($isOverdue)
@@ -450,7 +450,7 @@
             <div class="glass-panel overflow-hidden" x-data="{ openUpload: {{ $errors->hasAny(['file', 'doc_type', 'phase_number']) ? 'true' : 'false' }} }">
                 <div class="p-5 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
                     <h3 class="text-lg font-semibold text-gray-900">Court Documents</h3>
-                    @if(auth()->user()->hasRole('admin', 'bjmp_staff'))
+                    @if(auth()->user()->isAdmin())
                         <button @click="openUpload = !openUpload" class="btn-secondary text-sm py-1.5">
                             Upload File
                         </button>
@@ -530,7 +530,7 @@
                             </div>
                             <div class="flex items-center gap-2">
                                 <a href="{{ route('detainees.documents.show', [$detainee, $doc]) }}" target="_blank" class="text-taya-accent hover:text-taya-accent-dark text-sm font-medium">Download</a>
-                                @if(auth()->user()->hasRole('admin', 'bjmp_staff'))
+                                @if(auth()->user()->isAdmin())
                                     <form action="{{ route('detainees.documents.destroy', [$detainee, $doc]) }}" method="POST" class="inline" onsubmit="return confirm('Delete this document?');">
                                         @csrf @method('DELETE')
                                         <button type="submit" class="text-red-500 hover:text-red-700 ml-2">

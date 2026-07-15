@@ -15,7 +15,7 @@ class PhaseController extends Controller
 
     public function complete(Request $request, DetaineePhase $phase)
     {
-        if (!$request->user()->hasRole('admin', 'bjmp_staff')) {
+        if (!$request->user()->isAdmin()) {
             abort(403);
         }
 
@@ -27,7 +27,7 @@ class PhaseController extends Controller
 
     public function flag(Request $request, DetaineePhase $phase)
     {
-        if (!$request->user()->hasRole('admin', 'bjmp_staff')) {
+        if (!$request->user()->isAdmin()) {
             abort(403);
         }
 

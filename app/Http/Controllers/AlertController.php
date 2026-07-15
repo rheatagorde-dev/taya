@@ -86,7 +86,7 @@ class AlertController extends Controller
             'legalActions.filedByUser',
         ]);
 
-        $lawyers = User::whereIn('role', ['pao_lawyer', 'ngo_lawyer'])->get();
+        $lawyers = User::where('role', 'authorized_user')->get();
 
         return view('alerts.show', compact('alert', 'lawyers'));
     }
