@@ -3,10 +3,30 @@
 namespace App\Http\Controllers;
 
 use App\Models\Detainee;
+use App\Models\PenaltyReference;
 use Illuminate\Http\Request;
 
 class TrackingController extends Controller
 {
+    public function landing()
+    {
+        $cases = PenaltyReference::query()
+            ->select(['id', 'rpc_code', 'charge_name', 'law_source', 'max_penalty_years', 'max_penalty_months'])
+            ->orderBy('charge_name')
+            ->get()
+            ->map(function (PenaltyReference $penalty) {
+                return [
+                    'id' => $penalty->id,
+                    'label' => sprintf('[%s] %s', $penalty->rpc_code ?: $penalty->law_source, $penalty->charge_name),
+                    'penalty_display' => $penalty->penalty_duration_display,
+                    'years' => (int) $penalty->max_penalty_years,
+                    'months' => (int) ($penalty->max_penalty_months ?? 0),
+                ];
+            });
+
+        return view('tracking.landing', compact('cases'));
+    }
+
     public function lookup(Request $request)
     {
         $code = $request->input('code');

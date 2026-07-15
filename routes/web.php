@@ -3,15 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    if (auth()->check()) {
-        return redirect()->route('dashboard');
-    }
-
-    // Default start page: staff login
-    return redirect()->route('login');
-});
-
+Route::get('/', [\App\Http\Controllers\TrackingController::class, 'landing'])->name('tracking.landing');
 Route::get('/track', [\App\Http\Controllers\TrackingController::class, 'lookup'])->name('tracking.lookup');
 Route::get('/track/{code}', [\App\Http\Controllers\TrackingController::class, 'show'])->name('tracking.show');
 

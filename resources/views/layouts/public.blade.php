@@ -111,9 +111,10 @@
       </div>
       <nav>
         @unless(request()->routeIs('tracking.show'))
-          <a href="#track">Track a Case</a>
-          <a href="#rights">Know Your Rights</a>
-          <a href="#how">How It Works</a>
+          <a href="{{ route('tracking.landing') }}">Estimate Duration</a>
+          <a href="{{ route('tracking.lookup') }}">Track a Detainee</a>
+          <a href="{{ route('tracking.landing') }}#rights">Know Your Rights</a>
+          <a href="{{ route('tracking.landing') }}#how">How It Works</a>
         @endunless
         <a class="staff-pill" href="{{ route('login') }}">Staff Login →</a>
       </nav>
