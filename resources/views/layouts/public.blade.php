@@ -67,12 +67,13 @@
   }
   .brand-name{ font-size:19px; font-weight:700; line-height:1.1; }
   .brand-tag{ font-size:12.5px; color:var(--text-muted); margin-top:2px; }
-  nav{ display:flex; align-items:center; gap:34px; }
+  nav{ display:flex; align-items:center; gap:28px; }
   nav a{
     font-size:14px; color:var(--text-secondary); text-decoration:none;
-    transition:color .15s ease;
+    transition:color .12s ease, transform .12s ease;
+    padding:6px 8px; border-radius:8px;
   }
-  nav a:hover{ color:var(--text-primary); }
+  nav a:hover{ color:var(--text-primary); background:rgba(255,255,255,0.02); transform:translateY(-1px); }
   .staff-pill{
     display:inline-flex; align-items:center; gap:6px;
     padding:9px 18px; border-radius:100px;
@@ -94,9 +95,10 @@
   .footer-links a:hover{ color:var(--text-secondary); }
 
   @media(max-width:820px){
-    header{ padding:18px 22px; }
-    nav{ gap:16px; }
-    nav a:not(.staff-pill){ display:none; }
+    header{ padding:14px 18px; }
+    nav{ gap:12px; flex-wrap:wrap; }
+    nav a{ display:inline-flex; }
+    .staff-pill{ order:2; margin-top:6px; }
     footer{ flex-direction:column; gap:14px; padding:28px 22px; text-align:center; }
   }
 </style>

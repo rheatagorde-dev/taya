@@ -29,14 +29,26 @@
     .wrap{ max-width:760px; margin:44px auto 0; padding:0 24px; }
     .card{ background:var(--bg-card); border:1px solid var(--border); border-radius:18px; padding:36px 40px 32px; box-shadow:0 20px 50px -20px rgba(0,0,0,0.4); }
     .form-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:22px; }
-    .select-box, .date-box{ display:flex; align-items:center; gap:10px; background:#1b2244; border:1px solid var(--border); border-radius:11px; padding:14px 16px; }
+    .select-box, .date-box{ display:flex; align-items:center; gap:10px; background:#1b2244; border:1px solid var(--border); border-radius:11px; padding:14px 16px; position:relative; }
     select, input[type="date"]{ background:none; border:none; outline:none; color:var(--text-primary); font-size:14px; width:100%; }
-    .btn-primary{ display:inline-flex; align-items:center; justify-content:center; gap:9px; background:var(--accent-gradient); border:none; border-radius:11px; color:#08121c; font-weight:700; font-size:14.5px; padding:14px 30px; cursor:pointer; }
+    /* Native select appearance tweaks for better contrast and overlay behavior */
+    select{ appearance:none; -webkit-appearance:none; -moz-appearance:none; z-index:1000; position:relative; color:var(--text-primary); background:transparent; }
+    select:focus{ box-shadow:0 6px 24px rgba(11,15,30,0.45); }
+    /* Option styling (supported on most modern browsers) */
+    select option{ background:var(--bg-card); color:var(--text-primary); }
+    /* Improve scrollbar styling inside option lists (WebKit-based) */
+    @media all and (-webkit-min-device-pixel-ratio:0) {
+      select::-webkit-scrollbar{ width:12px }
+      select::-webkit-scrollbar-thumb{ background: rgba(255,255,255,0.06); border-radius:8px }
+    }
+    select::-ms-expand{ display:none; }
+    .btn-primary{ display:inline-flex; align-items:center; justify-content:center; gap:9px; background:var(--accent-gradient); border:none; border-radius:11px; color:#08121c; font-weight:700; font-size:14.5px; padding:14px 30px; cursor:pointer; transition:transform .12s ease, box-shadow .12s ease; }
+    .btn-primary:hover{ transform:translateY(-3px); box-shadow:0 12px 30px rgba(59,130,246,0.18); }
     .track-prompt{ display:flex; align-items:center; justify-content:space-between; gap:16px; margin-top:24px; padding-top:22px; border-top:1px solid var(--border-soft); }
     .btn-track{ display:inline-flex; align-items:center; gap:8px; padding:11px 20px; border-radius:11px; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:var(--text-primary) !important; font-size:13.5px; font-weight:600; text-decoration:none; }
 
-    .result-panel{ display:none; margin-top:24px; }
-    .result-panel.show{ display:block; animation:fadein .35s ease; }
+    .result-panel{ display:none; margin-top:24px; transition:opacity .18s ease, transform .18s ease; }
+    .result-panel.show{ display:block; opacity:1; transform:translateY(0); animation:fadein .35s ease; }
     @keyframes fadein{ from{ opacity:0; transform:translateY(6px);} to{ opacity:1; transform:translateY(0);} }
     .stat-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:18px 22px; padding:18px 0; border-top:1px solid var(--border-soft); border-bottom:1px solid var(--border-soft); margin-bottom:20px; }
     .recommendation{ display:flex; gap:13px; align-items:flex-start; border-radius:13px; padding:16px 18px; margin-bottom:22px; }
@@ -54,7 +66,8 @@
     .field label{ display:block; font-size:13px; color:var(--text-secondary); margin-bottom:8px; }
     .err-msg{ color:#ff8b8b; font-size:13px; margin-top:8px; display:none; }
     .field.error .err-msg{ display:block; }
-    .t-row{ display:flex; align-items:center; justify-content:space-between; padding:10px 12px; border-radius:8px; background:rgba(255,255,255,0.01); margin-bottom:8px; }
+    .t-row{ display:flex; align-items:center; justify-content:space-between; padding:10px 12px; border-radius:8px; background:rgba(255,255,255,0.01); margin-bottom:8px; transition:background .12s ease, transform .12s ease; }
+    .t-row.next{ transform:translateX(0); }
     .t-left{ display:flex; gap:12px; align-items:center; }
     .t-index{ width:40px; height:40px; border-radius:8px; background:rgba(255,255,255,0.03); display:flex; align-items:center; justify-content:center; font-weight:700; color:var(--text-secondary); }
     .t-name{ font-weight:700; }
