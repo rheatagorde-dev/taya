@@ -25,6 +25,20 @@ class AlertController extends Controller
                          ->orWhere('charge_description', 'like', "%{$search}%");
                   });
             });
+
+            // Prefer detainee names that start with the search term, then contains,
+            // then charge description matches. We implement a lightweight relevance
+            // ordering using a CASE expression on the related detainee fields.
+            $prefix = $search . '%';
+            $contains = '%' . $search . '%';
+
+            $query->orderByRaw("CASE
+                WHEN (SELECT full_name FROM detainees WHERE detainees.id = alerts.detainee_id) LIKE ? THEN 1
+                WHEN (SELECT full_name FROM detainees WHERE detainees.id = alerts.detainee_id) LIKE ? THEN 2
+                WHEN (SELECT charge_description FROM detainees WHERE detainees.id = alerts.detainee_id) LIKE ? THEN 3
+                ELSE 4 END",
+                [$prefix, $contains, $contains]
+            );
         }
 
         $filter = $request->input('record_filter');

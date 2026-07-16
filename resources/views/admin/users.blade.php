@@ -148,7 +148,7 @@
 </div>
 
 <!-- Create User Modal (AlpineJS driven) -->
-<div x-data="{ show: false }"
+<div x-data="{ show: false, showPassword: false }"
      x-show="show"
      x-transition.opacity.duration.300ms
      x-on:open-modal.window="if ($event.detail === 'create-user') $nextTick(() => { show = true })"
@@ -166,7 +166,7 @@
                 <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                     <div class="mb-5">
                         <h3 class="text-lg leading-6 font-bold text-gray-900" id="modal-title">Provision New User</h3>
-                        <p class="text-sm text-gray-500 mt-1">Create a new system account. Default password will be 'password'.</p>
+                        <p class="text-sm text-gray-500 mt-1">Create a new system account and set its initial password.</p>
                     </div>
 
                     <div class="space-y-4">
@@ -178,6 +178,15 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Email Address</label>
                             <input type="email" name="email" required class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm outline-none focus:border-taya-accent focus:ring-1 focus:ring-taya-accent transition-colors">
+                        </div>
+
+                        <div>
+                            <label for="create_user_password" class="block text-sm font-medium text-gray-700">Password</label>
+                            <div class="relative mt-1">
+                                <input :type="showPassword ? 'text' : 'password'" id="create_user_password" name="password" required minlength="8" autocomplete="new-password" class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 pr-16 text-sm text-gray-900 shadow-sm outline-none focus:border-taya-accent focus:ring-1 focus:ring-taya-accent transition-colors">
+                                <button type="button" @click="showPassword = !showPassword" class="absolute inset-y-0 right-0 flex items-center px-3 text-xs font-medium text-gray-500 hover:text-gray-700" :aria-label="showPassword ? 'Hide password' : 'Show password'" x-text="showPassword ? 'Hide' : 'Show'"></button>
+                            </div>
+                            <p class="mt-1 text-xs text-gray-500">Use at least 8 characters.</p>
                         </div>
                         
                         <div>
