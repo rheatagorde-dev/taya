@@ -19,16 +19,16 @@ class DetaineePolicy
 
     public function create(User $user): bool
     {
-        return $user->hasRole('admin', 'bjmp_staff');
+        return $user->isAdmin();
     }
 
     public function update(User $user, Detainee $detainee): bool
     {
-        return $user->hasRole('admin', 'bjmp_staff');
+        return $user->isAdmin();
     }
 
     public function delete(User $user, Detainee $detainee): bool
     {
-        return $user->hasRole('admin', 'bjmp_staff');
+        return $user->isAdmin();
     }
 }

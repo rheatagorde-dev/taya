@@ -67,10 +67,7 @@
                                 @php
                                     $roleColor = match($user->role) {
                                         'admin' => 'purple',
-                                        'bjmp_staff' => 'blue',
-                                        'pao_lawyer', 'ngo_lawyer' => 'indigo',
-                                        'court_admin' => 'teal',
-                                        'policy_advocate' => 'orange',
+                                        'authorized_user' => 'indigo',
                                         default => 'gray'
                                     };
                                 @endphp
@@ -192,11 +189,7 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Role</label>
                             <select name="role" required class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm outline-none focus:border-taya-accent focus:ring-1 focus:ring-taya-accent transition-colors">
-                                <option value="bjmp_staff">BJMP Staff</option>
-                                <option value="pao_lawyer">PAO Lawyer</option>
-                                <option value="ngo_lawyer">NGO Lawyer</option>
-                                <option value="court_admin">Court Administrator</option>
-                                <option value="policy_advocate">Policy Advocate</option>
+                                <option value="authorized_user">Authorized User</option>
                                 <option value="admin">System Admin</option>
                             </select>
                         </div>
@@ -273,11 +266,7 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Role</label>
                         <select name="role" x-model="userRole" required :disabled="userRole === 'admin'" class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm outline-none focus:border-taya-accent focus:ring-1 focus:ring-taya-accent transition-colors" :class="userRole === 'admin' ? 'opacity-60 cursor-not-allowed' : ''">
-                            <option value="bjmp_staff">BJMP Staff</option>
-                            <option value="pao_lawyer">PAO Lawyer</option>
-                            <option value="ngo_lawyer">NGO Lawyer</option>
-                            <option value="court_admin">Court Administrator</option>
-                            <option value="policy_advocate">Policy Advocate</option>
+                            <option value="authorized_user">Authorized User</option>
                             <option value="admin">System Admin</option>
                         </select>
                         <p x-show="userRole === 'admin'" class="mt-2 text-xs text-gray-500">System Admin role cannot be changed.</p>

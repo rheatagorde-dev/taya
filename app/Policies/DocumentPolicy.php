@@ -19,11 +19,11 @@ class DocumentPolicy
 
     public function create(User $user): bool
     {
-        return $user->hasRole('admin', 'bjmp_staff');
+        return $user->isAdmin();
     }
 
     public function delete(User $user, Document $document): bool
     {
-        return $user->hasRole('admin', 'bjmp_staff');
+        return $user->isAdmin();
     }
 }

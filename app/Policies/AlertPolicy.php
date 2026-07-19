@@ -19,12 +19,12 @@ class AlertPolicy
 
     public function assign(User $user, Alert $alert): bool
     {
-        return $user->hasRole('admin', 'pao_lawyer', 'ngo_lawyer');
+        return $user->hasRole('admin', 'authorized_user');
     }
 
     public function resolve(User $user, Alert $alert): bool
     {
-        return $user->hasRole('admin', 'pao_lawyer', 'ngo_lawyer');
+        return $user->hasRole('admin', 'authorized_user');
     }
 
     public function override(User $user, Alert $alert): bool

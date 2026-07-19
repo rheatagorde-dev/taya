@@ -9,12 +9,12 @@ class PhasePolicy
 {
     public function complete(User $user, DetaineePhase $phase): bool
     {
-        return $user->hasRole('admin', 'bjmp_staff');
+        return $user->isAdmin();
     }
 
     public function flag(User $user, DetaineePhase $phase): bool
     {
-        return $user->hasRole('admin', 'bjmp_staff');
+        return $user->isAdmin();
     }
 }
 

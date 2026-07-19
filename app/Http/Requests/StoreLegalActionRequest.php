@@ -8,7 +8,7 @@ class StoreLegalActionRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->hasRole('admin', 'pao_lawyer', 'ngo_lawyer', 'court_admin');
+        return $this->user()->hasRole('admin', 'authorized_user');
     }
 
     public function rules(): array

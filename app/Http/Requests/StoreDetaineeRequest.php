@@ -8,7 +8,7 @@ class StoreDetaineeRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->hasRole('admin', 'bjmp_staff');
+        return $this->user()->isAdmin();
     }
 
     public function rules(): array

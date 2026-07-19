@@ -113,7 +113,7 @@ class DetaineeSeeder extends Seeder
         $phaseService->flagOverduePhases();
 
         // Assign some lawyers to critical/at-risk alerts
-        $lawyers = User::whereIn('role', ['pao_lawyer', 'ngo_lawyer'])->get();
+        $lawyers = User::where('role', 'authorized_user')->get();
         $criticalAlerts = \App\Models\Alert::whereIn('alert_level', ['critical', 'at_risk'])
             ->whereNull('resolved_at')
             ->get();
