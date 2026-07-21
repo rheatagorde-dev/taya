@@ -173,17 +173,17 @@
                         </div>
                         
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Email Address</label>
-                            <input type="email" name="email" required class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm outline-none focus:border-taya-accent focus:ring-1 focus:ring-taya-accent transition-colors">
-                        </div>
-
-                        <div>
-                            <label for="create_user_password" class="block text-sm font-medium text-gray-700">Password</label>
+                            <label class="block text-sm font-medium text-gray-700">Password</label>
                             <div class="relative mt-1">
                                 <input :type="showPassword ? 'text' : 'password'" id="create_user_password" name="password" required minlength="8" autocomplete="new-password" class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 pr-16 text-sm text-gray-900 shadow-sm outline-none focus:border-taya-accent focus:ring-1 focus:ring-taya-accent transition-colors">
                                 <button type="button" @click="showPassword = !showPassword" class="absolute inset-y-0 right-0 flex items-center px-3 text-xs font-medium text-gray-500 hover:text-gray-700" :aria-label="showPassword ? 'Hide password' : 'Show password'" x-text="showPassword ? 'Hide' : 'Show'"></button>
                             </div>
                             <p class="mt-1 text-xs text-gray-500">Use at least 8 characters.</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Confirm Password</label>
+                            <input type="password" name="password_confirmation" required minlength="8" class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm outline-none focus:border-taya-accent focus:ring-1 focus:ring-taya-accent transition-colors">
                         </div>
                         
                         <div>
